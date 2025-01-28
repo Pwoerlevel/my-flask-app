@@ -1,0 +1,195 @@
+{% extends "base.html" %}
+
+{% block title %}إنشاء حساب{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <h2>إنشاء حساب جديد</h2>
+    <form id="registerForm" method="POST" action="{{ url_for('register') }}">
+        <div class="form-group">
+            <label for="username">اسم المستخدم</label>
+            <input type="text" id="username" name="username" required>
+            <small class="form-text">سيتم إضافة @moltka.eg تلقائياً</small>
+            <span id="username-validation-message"></span>
+        </div>
+
+        <div class="form-group">
+            <label for="password">كلمة المرور</label>
+            <input type="password" id="password" name="password" required>
+            <div id="password-strength" class="strength-meter"></div>
+        </div>
+
+        <div class="form-group">
+            <label for="confirm_password">تأكيد كلمة المرور</label>
+            <input type="password" id="confirm_password" name="confirm_password" required>
+            <span id="password-match-message"></span>
+        </div>
+
+        <div class="form-group">
+            <label for="profession">المجال المهني</label>
+            <select id="profession" name="profession" required>
+                <option value="">اختر المجال المهني</option>
+                <option value="مطور ويب">مطور ويب</option>
+                <option value="مطور واجهة خلفية">مطور واجهة خلفية</option>
+                <option value="برمجة">برمجة</option>
+                <option value="مطور ألعاب">مطور ألعاب</option>
+                <option value="مطور أندرويد">مطور أندرويد</option>
+                <option value="مطور iOS">مطور iOS</option>
+                <option value="مهندس">مهندس</option>
+                <option value="طبيب">طبيب</option>
+                <option value="علوم اجتماعية">علوم اجتماعية</option>
+                <option value="معلم">معلم</option>
+                <option value="محاسب">محاسب</option>
+                <option value="صحفي">صحفي</option>
+                <option value="محامي">محامي</option>
+                <option value="مصمم جرافيكي">مصمم جرافيكي</option>
+                <option value="مصور">مصور</option>
+                <option value="كاتب">كاتب</option>
+                <option value="مدرب رياضي">مدرب رياضي</option>
+                <option value="طاهي">طاهي</option>
+                <option value="ديني">ديني</option>
+                <option value="شاعر">شاعر</option>
+                <option value="رسام">رسام</option>
+                <option value="محلل مالي">محلل مالي</option>
+                <option value="فني صيانة">فني صيانة</option>
+                <option value="باحث">باحث</option>
+                <option value="IT">IT</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>المهارات</label>
+            <div id="skills-container">
+                <div class="skill-input">
+                    <input type="text" name="skill" class="skill-field">
+                    <button type="button" class="add-skill">+</button>
+                </div>
+            </div>
+            <input type="hidden" id="skills" name="skills">
+        </div>
+
+        <div class="form-group">
+            <label for="security_question">سؤال الأمان</label>
+            <select id="security_question" name="security_question" required>
+                <option value="">اختر سؤال الأمان</option>
+                <option value="ما اسم مدرستك الأولى؟">ما اسم مدرستك الأولى؟</option>
+                <option value="ما اسم حيوانك الأليف الأول؟">ما اسم حيوانك الأليف الأول؟</option>
+                <option value="ما هي مدينتك المفضلة؟">ما هي مدينتك المفضلة؟</option>
+                <option value="ما اسم أفضل صديق في طفولتك؟">ما اسم أفضل صديق في طفولتك؟</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="security_answer">إجابة سؤال الأمان</label>
+            <input type="text" id="security_answer" name="security_answer" required>
+        </div>
+
+        <button type="submit" class="submit-btn">إنشاء الحساب</button>
+    </form>
+    <div class="auth-links">
+        <p>لديك حساب بالفعل؟ <a href="{{ url_for('login') }}">تسجيل الدخول</a></p>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+$(document).ready(function() {
+    // Username validation
+    $('#username').on('input', function() {
+        const username = $(this).val();
+        if (username) {
+            $.get('/validate-username', { username: username }, function(data) {
+                if (data.exists) {
+                    $('#username-validation-message').text('اسم المستخدم مستخدم بالفعل').addClass('error').removeClass('success');
+                } else {
+                    $('#username-validation-message').text('اسم المستخدم متاح').addClass('success').removeClass('error');
+                }
+            });
+        }
+    });
+
+    // Password matching validation
+    $('#confirm_password').on('input', function() {
+        const password = $('#password').val();
+        const confirmPassword = $(this).val();
+        
+        if (password === confirmPassword) {
+            $('#password-match-message').text('كلمات المرور متطابقة').addClass('success').removeClass('error');
+        } else {
+            $('#password-match-message').text('كلمات المرور غير متطابقة').addClass('error').removeClass('success');
+        }
+    });
+
+    // Password strength
+    $('#password').on('input', function() {
+        const password = $(this).val();
+        let strength = 0;
+        
+        if (password.length >= 8) strength++;
+        if (/[A-Z]/.test(password)) strength++;
+        if (/[a-z]/.test(password)) strength++;
+        if (/[0-9]/.test(password)) strength++;
+        if (/[^A-Za-z0-9]/.test(password)) strength++;
+
+        const strengthMeter = $('#password-strength');
+        strengthMeter.removeClass('weak medium strong');
+        
+        if (strength <= 2) {
+            strengthMeter.text('ضعيف').addClass('weak');
+        } else if (strength <= 4) {
+            strengthMeter.text('متوسط').addClass('medium');
+        } else {
+            strengthMeter.text('قوي').addClass('strong');
+        }
+    });
+
+    // Skills management
+    $('.add-skill').click(function() {
+        const skillValue = $(this).siblings('.skill-field').val(); // Get the current skill value
+        if (skillValue.trim() !== "") {
+            const skillInput = `
+                <div class="skill-input">
+                    <input type="text" name="skill" class="skill-field" value="${skillValue}">
+                    <button type="button" class="remove-skill">-</button>
+                </div>
+            `;
+            $('#skills-container').append(skillInput);
+            $(this).siblings('.skill-field').val(""); // Clear the input field
+        }
+    });
+
+    $(document).on('click', '.remove-skill', function() {
+        $(this).parent().remove();
+    });
+
+    // Form submission
+    $('#registerForm').on('submit', function(e) {
+        const skills = [];
+        $('.skill-field').each(function() {
+            const skill = $(this).val().trim();
+            if (skill) {
+                skills.push(skill);
+            }
+        });
+        $('#skills').val(JSON.stringify(skills));
+
+        const password = $('#password').val();
+        const confirmPassword = $('#confirm_password').val();
+        
+        if (password !== confirmPassword) {
+            e.preventDefault();
+            alert('كلمات المرور غير متطابقة');
+            return;
+        }
+
+        const username = $('#username').val().trim();
+        if (!username) {
+            e.preventDefault();
+            alert('الرجاء إدخال اسم المستخدم');
+            return;
+        }
+    });
+});
+</script>
+{% endblock %}

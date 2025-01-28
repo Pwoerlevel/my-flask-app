@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إنشاء منشور جديد</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: 'Arial', sans-serif;
+            background-color: #fff;
+            direction: rtl;
+        }
+
+        .post-form {
+            max-width: 100%;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .profile-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            overflow: hidden;
+            margin-left: 10px;
+        }
+
+        .profile-circle img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .username {
+            font-weight: bold;
+            color: #1a1a1a;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        input[type="text"],
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 16px;
+            direction: rtl;
+        }
+
+        textarea {
+            min-height: 150px;
+            resize: vertical;
+        }
+
+        .media-upload {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            padding: 15px;
+            border-top: 1px solid #ddd;
+        }
+
+        .upload-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 20px;
+            background-color: #f0f2f5;
+            color: #1a1a1a;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.2s;
+        }
+
+        .upload-btn:hover {
+            background-color: #e4e6eb;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 12px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin-top: 20px;
+        }
+
+        .submit-btn:hover {
+            background-color: #45a049;
+        }
+
+        .submit-btn:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+
+        #preview {
+            margin-top: 15px;
+            max-width: 100%;
+            border-radius: 8px;
+            display: none;
+        }
+
+        #preview img,
+        #preview video {
+            max-width: 100%;
+            border-radius: 8px;
+        }
+
+        .preview-container {
+            position: relative;
+            display: inline-block;
+            margin-top: 15px;
+            width: 100%;
+        }
+
+        .remove-preview {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .remove-preview:hover {
+            background: rgba(0, 0, 0, 0.7);
+        }
+
+        .media-preview {
+            width: 100%;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #f0f2f5;
+            margin-top: 15px;
+            display: none;
+        }
+
+        .media-preview img {
+            width: 100%;
+            display: block;
+        }
+
+        .media-preview video {
+            width: 100%;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <form class="post-form" method="POST" enctype="multipart/form-data">
+        <div class="user-info">
+            <div class="profile-circle">
+                <img src="{{ url_for('static', filename='uploads/default-avatar.jpg') }}" alt="صورة الملف الشخصي">
+            </div>
+            <span class="username">{{ current_user.username }}</span>
+        </div>
+
+        <div class="form-group">
+            <input type="text" name="title" placeholder="عنوان المنشور" required>
+        </div>
+
+        <div class="form-group">
+            <textarea name="content" placeholder="ماذا يدور في ذهنك؟" required></textarea>
+        </div>
+
+        <div class="media-preview" id="mediaPreview"></div>
+
+        <div class="media-upload">
+            <input type="file" id="imageInput" name="media" accept="image/*" style="display: none">
+            <button type="button" class="upload-btn" onclick="document.getElementById('imageInput').click()">
+                <i class="fas fa-image"></i>
+                صورة
+            </button>
+
+            <input type="file" id="videoInput" name="media" accept="video/*" style="display: none">
+            <button type="button" class="upload-btn" onclick="document.getElementById('videoInput').click()">
+                <i class="fas fa-video"></i>
+                فيديو
+            </button>
+        </div>
+
+        <button type="submit" class="submit-btn">نشر</button>
+    </form>
+
+    <script>
+        const imageInput = document.getElementById('imageInput');
+        const videoInput = document.getElementById('videoInput');
+        const mediaPreview = document.getElementById('mediaPreview');
+        let currentFile = null;
+
+        function showPreview(file, type) {
+            if (currentFile) {
+                URL.revokeObjectURL(currentFile);
+            }
+
+            const previewUrl = URL.createObjectURL(file);
+            currentFile = previewUrl;
+
+            mediaPreview.innerHTML = `
+                <div class="preview-container">
+                    ${type === 'image' 
+                        ? `<img src="${previewUrl}" alt="معاينة">`
+                        : `<video src="${previewUrl}" controls></video>`
+                    }
+                    <button type="button" class="remove-preview" onclick="removePreview()">×</button>
+                </div>
+            `;
+            mediaPreview.style.display = 'block';
+        }
+
+        function removePreview() {
+            if (currentFile) {
+                URL.revokeObjectURL(currentFile);
+                currentFile = null;
+            }
+            mediaPreview.innerHTML = '';
+            mediaPreview.style.display = 'none';
+            imageInput.value = '';
+            videoInput.value = '';
+        }
+
+        imageInput.addEventListener('change', (e) => {
+            if (e.target.files[0]) {
+                showPreview(e.target.files[0], 'image');
+                videoInput.value = '';
+            }
+        });
+
+        videoInput.addEventListener('change', (e) => {
+            if (e.target.files[0]) {
+                showPreview(e.target.files[0], 'video');
+                imageInput.value = '';
+            }
+        });
+    </script>
+</body>
+</html>

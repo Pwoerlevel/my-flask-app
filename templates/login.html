@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}تسجيل الدخول{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <h2>تسجيل الدخول</h2>
+    <form id="loginForm" method="POST" action="{{ url_for('login') }}">
+        <div class="form-group">
+            <label for="username">اسم المستخدم</label>
+            <input type="text" id="username" name="username" required>
+            <small class="form-text">سيتم إضافة @moltka.eg تلقائياً</small>
+        </div>
+
+        <div class="form-group">
+            <label for="password">كلمة المرور</label>
+            <input type="password" id="password" name="password" required>
+        </div>
+
+        <button type="submit" class="submit-btn">تسجيل الدخول</button>
+    </form>
+
+    <div class="auth-links">
+        <p><a href="{{ url_for('forgot_password') }}">نسيت كلمة السر؟</a></p>
+        <p>ليس لديك حساب؟ <a href="{{ url_for('register') }}">إنشاء حساب جديد</a></p>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+$(document).ready(function() {
+    $('#loginForm').on('submit', function(e) {
+        const username = $('#username').val().trim();
+        const password = $('#password').val();
+
+        if (!username || !password) {
+            e.preventDefault();
+            alert('الرجاء ملء جميع الحقول المطلوبة');
+        }
+    });
+});
+</script>
+{% endblock %}

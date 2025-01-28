@@ -1,0 +1,1984 @@
+{% extends "base.html" %}
+
+{% block title %}{{ user.username }} - الملف الشخصي{% endblock %}
+
+{% block content %}
+<div class="profile-container">
+    <!-- قسم معلومات الملف الشخصي -->
+    <div class="profile-header">
+        <div class="cover-photo"></div>
+        <div class="profile-info">
+            <div class="profile-photo">
+                <img src="{{ url_for('static', filename=user.profile_photo) }}" alt="الصورة الشخصية">
+            </div>
+            <h1 class="profile-name">{{ user.username }}</h1>
+            <div class="profile-details">
+                <div class="detail-item">
+                    <i class="fas fa-envelope"></i>
+                    <span>{{ user.email }}</span>
+                </div>
+                <div class="detail-item">
+                    <i class="fas fa-briefcase"></i>
+                    <span>{{ user.profession }}</span>
+                </div>
+            </div>
+            <div class="skills-section">
+                <h3>المهارات</h3>
+                <div class="skills-list">
+                    {% for skill in user.skills|from_json %}
+                    <span class="skill-tag">{{ skill }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+            <!-- <button id="editProfileBtn" class="edit-btn">
+                <i class="fas fa-edit"></i>
+                تعديل الملف الشخصي
+            </button> -->
+        </div>
+    </div>
+
+</button>
+<!-- زر المراسلة -->
+<a href="#" class="message-btn" onclick="openMessage()">
+    <i class="fas fa-envelope"></i>
+    مراسلة
+</a>
+
+<!-- الحاوية الأساسية للرسالة (بدون iframe مسبقًا) -->
+<div id="message-container" class="show" style="display: none;">
+    <div id="message-header">
+        <!-- <button id="close-btn">×</button> -->
+    </div>
+    <!-- سيتم إضافة iframe هنا ديناميكيًا -->
+</div>
+
+    <div class="filter-buttons">
+        <button id="filterAll" class="filter-btn active">الكل</button>
+        <button id="filterImages" class="filter-btn">الصور</button>
+        <button id="filterVideos" class="filter-btn">الفيديوهات</button>
+        <button id="filterText" class="filter-btn">النص</button>
+    </div>
+
+    <div id="noPostsMessage" style="display: none; text-align: center; margin-top: 20px; color: #666;">
+        لا توجد منشورات تطابق الفلتر المحدد.
+    </div>
+
+    <!-- نموذج تعديل الملف الشخصي -->
+    <div id="editProfileForm" class="edit-form" style="display: none;">
+        <h2>تعديل الملف الشخصي</h2>
+        <form id="profileForm" method="POST" action="{{ url_for('update_profile') }}" enctype="multipart/form-data">
+            <div class="form-group">
+                <label>الصورة الشخصية</label>
+                <div class="profile-photo-upload">
+                    <input type="file" id="avatar" name="avatar" accept="image/*" class="avatar-input">
+                    <label for="avatar" class="upload-btn">
+                        <i class="fas fa-camera"></i>
+                        تغيير الصورة
+                    </label>
+                    <button type="button" class="remove-photo-btn" id="removePhotoBtn">
+                        <i class="fas fa-times"></i>
+                        إزالة الصورة
+                    </button>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="username">اسم المستخدم</label>
+                <input type="text" id="username" name="username" value="{{ user.username }}" required>
+                <small class="form-text">@moltka.eg</small>
+                <span id="username-validation-message"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="profession">المجال المهني</label>
+                <select id="profession" name="profession" required>
+                    <option value="">اختر المجال المهني</option>
+                    <option value="مطور ويب" {% if user.profession == "مطور ويب" %}selected{% endif %}>مطور ويب</option>
+                    <option value="مطور واجهة خلفية" {% if user.profession == "مطور واجهة خلفية" %}selected{% endif %}>مطور واجهة خلفية</option>
+                    <option value="برمجة" {% if user.profession == "برمجة" %}selected{% endif %}>برمجة</option>
+                    <option value="مطور ألعاب" {% if user.profession == "مطور ألعاب" %}selected{% endif %}>مطور ألعاب</option>
+                    <option value="مطور أندرويد" {% if user.profession == "مطور أندرويد" %}selected{% endif %}>مطور أندرويد</option>
+                    <option value="مطور iOS" {% if user.profession == "مطور iOS" %}selected{% endif %}>مطور iOS</option>
+                    <option value="مهندس" {% if user.profession == "مهندس" %}selected{% endif %}>مهندس</option>
+                    <option value="طبيب" {% if user.profession == "طبيب" %}selected{% endif %}>طبيب</option>
+                    <option value="علوم اجتماعية" {% if user.profession == "علوم اجتماعية" %}selected{% endif %}>علوم اجتماعية</option>
+                    <option value="معلم" {% if user.profession == "معلم" %}selected{% endif %}>معلم</option>
+                    <option value="محاسب" {% if user.profession == "محاسب" %}selected{% endif %}>محاسب</option>
+                    <option value="صحفي" {% if user.profession == "صحفي" %}selected{% endif %}>صحفي</option>
+                    <option value="محامي" {% if user.profession == "محامي" %}selected{% endif %}>محامي</option>
+                    <option value="مصمم جرافيكي" {% if user.profession == "مصمم جرافيكي" %}selected{% endif %}>مصمم جرافيكي</option>
+                    <option value="مصور" {% if user.profession == "مصور" %}selected{% endif %}>مصور</option>
+                    <option value="كاتب" {% if user.profession == "كاتب" %}selected{% endif %}>كاتب</option>
+                    <option value="مدرب رياضي" {% if user.profession == "مدرب رياضي" %}selected{% endif %}>مدرب رياضي</option>
+                    <option value="طاهي" {% if user.profession == "طاهي" %}selected{% endif %}>طاهي</option>
+                    <option value="ديني" {% if user.profession == "ديني" %}selected{% endif %}>ديني</option>
+                    <option value="شاعر" {% if user.profession == "شاعر" %}selected{% endif %}>شاعر</option>
+                    <option value="رسام" {% if user.profession == "رسام" %}selected{% endif %}>رسام</option>
+                    <option value="محلل مالي" {% if user.profession == "محلل مالي" %}selected{% endif %}>محلل مالي</option>
+                    <option value="فني صيانة" {% if user.profession == "فني صيانة" %}selected{% endif %}>فني صيانة</option>
+                    <option value="باحث" {% if user.profession == "باحث" %}selected{% endif %}>باحث</option>
+                    <option value="IT" {% if user.profession == "IT" %}selected{% endif %}>IT</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>المهارات</label>
+                <div id="skills-container">
+                    {% for skill in user.skills|from_json %}
+                    <div class="skill-input">
+                        <input type="text" name="skill" class="skill-field" value="{{ skill }}">
+                        <button type="button" class="remove-skill">-</button>
+                    </div>
+                    {% endfor %}
+                    <div class="skill-input">
+                        <input type="text" name="skill" class="skill-field">
+                        <button type="button" class="add-skill">+</button>
+                    </div>
+                </div>
+                <input type="hidden" id="skills" name="skills">
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="save-btn">حفظ التغييرات</button>
+                <button type="button" class="cancel-btn" id="cancelEdit">إلغاء</button>
+            </div>
+        </form>
+    </div>
+
+       <!-- قسم المنشورات -->
+       <div class="posts-section">
+        <h2>المنشورات</h2>
+        <div class="posts-container">
+            {% for post in posts %}
+            <div class="post-card">
+                <div class="post-header">
+                    <div class="profile-circle">
+                        <img src="{{ url_for('static', filename=user.profile_photo) }}" alt="صورة الملف الشخصي">
+                    </div>
+                    <div class="user-info">
+                        <span class="username">{{ user.username }}</span>
+                        <span class="profession">{{ post.user_profession }}</span>
+                        <span class="timestamp">{{ post.created_at|format_datetime }}</span>
+                    </div>
+                    <div class="post-menu">
+                        <!-- <i class="fas fa-ellipsis-v menu-dots"></i> -->
+                        <div class="menu-options">
+                            <div class="menu-option edit-post" data-post-id="{{ post.id }}">
+                                <i class="fas fa-edit"></i> تعديل المنشور
+                            </div>
+                            <div class="menu-option delete-post" data-post-id="{{ post.id }}">
+                                <i class="fas fa-trash"></i> حذف المنشور
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="post-content" {% if post.background_color and not post.image_url %}style="background-color: {{ post.background_color }}; border-radius: 8px; text-align: center; font-size: 24px;"{% endif %}>
+                    {% if post.title %}
+                    <h3 class="post-title">{{ post.title }}</h3>
+                    {% endif %}
+                    {% if post.content %}
+                    <div class="post-text-container">
+                        <div class="post-content-box">
+                            <div class="post-text collapsed" {% if post.background_color and not post.image_url %}style="color: {% if post.background_color == '#ffffff' %}#1a1a1a{% else %}#000000{% endif %};"{% endif %}>
+                                {% for line in post.content.split('\n') %}
+                                    {% if line.strip() %}
+                                    <p>{{ line }}</p>
+                                    {% else %}
+                                    <p>&nbsp;</p>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                            <button class="see-more-btn" style="display: none;">إظهار المزيد</button>
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% if post.image_url %}
+                    <div class="post-media">
+                        <img src="{{ url_for('static', filename=post.image_url) }}" alt="صورة المنشور">
+                    </div>
+                    {% endif %}
+                    {% if post.video_url %}
+                    <div class="post-media video-container">
+                        <video src="{{ url_for('static', filename=post.video_url) }}" controls></video>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="post-actions">
+                    <button class="action-btn comment-btn" data-post-id="{{ post.id }}">
+                      <i class="fas fa-comment"></i> تعليق
+                    </button>
+                    <button class="action-btn share-btn" data-post-id="{{ post.id }}">
+                      <i class="fas fa-share"></i> مشاركة
+                    </button>
+                  </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+                
+
+
+<!-- Comments Fixed Container -->
+<div class="comments-overlay" id="commentsOverlay"></div>
+<div class="comments-fixed-container" id="commentsFixedContainer">
+  <div class="comments-content">
+    <div class="comments-header">
+      <h3>التعليقات</h3>
+      <span class="close-comments">&times;</span>
+    </div>
+    <div class="comments-list-container">
+      <div class="comments-list"></div>
+    </div>
+    <div class="comment-input-container">
+      <textarea
+        class="comment-input"
+        placeholder="اكتب تعليقك هنا..."
+        rows="1"
+      ></textarea>
+      <button class="send-comment-btn">
+        <i class="fas fa-paper-plane"></i>
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="reply-overlay" id="replyOverlay"></div>
+<div class="reply-fixed-container" id="replyFixedContainer">
+  <div class="reply-content">
+    <div class="reply-header">
+      <h3>الرد</h3>
+      <span class="close-reply">&times;</span>
+    </div>
+    <div class="reply-input-container">
+      <textarea
+        class="reply-input"
+        placeholder="اكتب ردك هنا..."
+        rows="1"
+      ></textarea>
+      <button class="send-reply-btn">
+        <i class="fas fa-paper-plane"></i>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- زر العودة للصفحة الرئيسية -->
+<!-- <a href="{{ url_for('dashboard') }}" class="back-btn">
+    <i class="fas fa-arrow-left"></i>
+    العودة للرئيسية
+</a> -->
+
+<style>
+/* Comments Fixed Container Styles */
+.comments-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1999;
+}
+
+.comments-fixed-container {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 80%;
+  background: white;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+  z-index: 2000;
+  transform: translateY(100%);
+  transition: transform 0.3s ease-out;
+}
+
+.comments-fixed-container.active {
+  transform: translateY(0);
+}
+
+.comments-content {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.comments-header {
+  padding: 16px;
+  border-bottom: 1px solid #ddd;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.comments-header h3 {
+  margin: 0;
+  text-align: center;
+  flex-grow: 1;
+}
+
+.close-comments {
+  font-size: 24px;
+  cursor: pointer;
+  color: #666;
+  padding: 8px;
+}
+
+.comments-list-container {
+  flex-grow: 1;
+  overflow-y: auto;
+  padding: 16px;
+}
+
+.comments-container {
+  flex-grow: 1;
+  overflow-y: auto;
+  padding: 16px;
+}
+
+.comment-input-container {
+  padding: 12px;
+  border-top: 1px solid #ddd;
+  background: white;
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.comment-input {
+  flex: 1;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+  resize: none;
+  font-size: 14px;
+  direction: rtl;
+}
+
+.send-comment-btn {
+  background: #4caf50;
+  color: white;
+  border: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.send-comment-btn:hover {
+  background: #45a049;
+}
+
+.comments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  direction: rtl;
+}
+
+.comment-item {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+  align-items: flex-start;
+  padding: 0 8px;
+}
+
+.comment-user-avatar {
+  width: 45px;
+  height: 45px;
+  flex-shrink: 0;
+  margin-left: 8px;
+}
+
+.comment-user-avatar img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.comment-bubble {
+  background: #f0f2f5;
+  border-radius: 18px;
+  padding: 8px 12px;
+  flex-grow: 1;
+}
+
+.comment-header {
+  margin-bottom: 4px;
+}
+
+.comment-username {
+  font-weight: 600;
+  color: #050505;
+  font-size: 13px;
+}
+
+.comment-content {
+  color: #050505;
+  font-size: 14px;
+  line-height: 1.4;
+  word-wrap: break-word;
+}
+
+.comment-time {
+  font-size: 11px;
+  color: #65676b;
+  margin-top: 4px;
+}
+
+.nested-comments {
+  margin-left: 20px;
+}
+
+.reply-input-container {
+  margin-top: 10px;
+}
+
+.reply-text {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+  resize: none;
+  font-size: 14px;
+  direction: rtl;
+}
+
+.send-reply-btn {
+  margin-top: 5px;
+  color: white;
+  background-color: blue;
+  border: none;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+/* Reply Modal Styles */
+.reply-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 2001;
+}
+
+.reply-fixed-container {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 30%;
+  background: white;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+  z-index: 2002;
+  transform: translateY(100%);
+  transition: transform 0.3s ease-out;
+}
+
+.reply-fixed-container.active {
+  transform: translateY(0);
+}
+
+.reply-content {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.reply-header {
+  padding: 16px;
+  border-bottom: 1px solid #ddd;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.reply-header h3 {
+  margin: 0;
+  text-align: center;
+  flex-grow: 1;
+}
+
+.close-reply {
+  font-size: 24px;
+  cursor: pointer;
+  color: #666;
+  padding: 8px;
+}
+
+.reply-input-container {
+  padding: 12px;
+  border-top: 1px solid #ddd;
+  background: white;
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.reply-input {
+  flex: 1;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+  resize: none;
+  font-size: 14px;
+  direction: rtl;
+}
+
+.send-reply-btn {
+  background: #4caf50;
+  color: white;
+  border: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+
+}
+.reply-btn{
+  color: blue;
+    cursor: pointer;
+    margin-right: 82%;
+    transform: translate(0%, -18px);
+}
+
+.send-reply-btn:hover {
+  background: #45a049;
+}
+
+
+/* أنماط زر التعديل */
+
+
+.edit-btn {
+    background: #4CAF50;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 20px auto 0;
+}
+
+.edit-btn:hover {
+    background: #45a049;
+}
+
+/* Profile Photo Upload Styles */
+.profile-photo-upload {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.avatar-input {
+    display: none;
+}
+
+.upload-btn {
+    background: #4CAF50;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.upload-btn:hover {
+    background: #45a049;
+}
+
+.remove-photo-btn {
+    background: #f44336;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 20px;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.remove-photo-btn:hover {
+    background: #d32f2f;
+}
+
+/* أنماط نموذج التعديل */
+.edit-form {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    margin: 20px 0;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+.edit-form h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #1a1a1a;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    color: #1a1a1a;
+}
+
+.form-group input,
+.form-group select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.skill-input {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.add-skill,
+.remove-skill {
+    background: #4CAF50;
+    color: white;
+    border: none;
+    width: 30px;
+    height: 30px;
+    border-radius: 15px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+}
+
+.remove-skill {
+    background: #f44336;
+}
+
+.form-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    margin-top: 20px;
+}
+
+.save-btn,
+.cancel-btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.save-btn {
+    background: #4CAF50;
+    color: white;
+}
+
+.cancel-btn {
+    background: #f44336;
+    color: white;
+}
+
+/* أنماط الصفحة الرئيسية */
+.back-btn {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    background: #fff;
+    color: #4CAF50;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    z-index: 100;
+    text-decoration: none;
+}
+
+.back-btn:hover {
+    background-color: #f0f2f5;
+}
+
+.profile-container {
+    max-width: 600px;
+    margin: 0 auto;
+    /* padding: 0 15px; */
+}
+
+.profile-header {
+    background: #fff;
+    border-radius: 0 0 8px 8px;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    overflow: hidden;
+    /* margin-top: 20px; */
+}
+
+.cover-photo {
+    height: 150px;
+    background-color: #4CAF50;
+    position: relative;
+}
+
+.profile-info {
+    padding: 0 20px 20px;
+    text-align: center;
+    position: relative;
+}
+
+.profile-photo {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    border: 4px solid #fff;
+    margin: -60px auto 10px;
+    overflow: hidden;
+    position: relative;
+    background: #fff;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.profile-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.profile-name {
+    font-size: 24px;
+    margin: 10px 0;
+    color: #1a1a1a;
+}
+
+.profile-details {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 15px 0;
+}
+
+.detail-item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    color: #65676b;
+}
+
+.detail-item i {
+    color: #4CAF50;
+}
+
+.skills-section {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #e4e6eb;
+}
+
+.skills-section h3 {
+    color: #1a1a1a;
+    margin-bottom: 15px;
+}
+
+.skills-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+}
+
+.skill-tag {
+    background: #e4e6eb;
+    padding: 6px 12px;
+    border-radius: 16px;
+    font-size: 14px;
+    color: #050505;
+}
+
+/* أنماط المنشورات */
+.posts-section {
+    margin-top: 20px;
+}
+
+.posts-section h2 {
+    color: #1a1a1a;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.posts-container {
+    margin-top: 20px;
+}
+
+.post-card {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+}
+
+.post-header {
+    display: flex;
+    align-items: center;
+    padding: 12px;
+}
+
+.post-content {
+    padding: 12px;
+}
+
+.post-title {
+    margin: 0 0 8px 0;
+    font-size: 18px;
+    text-align: right;
+}
+
+.post-content-box {
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 10px;
+}
+
+.post-text {
+    margin: 0;
+    color: #1a1a1a;
+    line-height: 1.6;
+    text-align: right;
+    word-wrap: break-word;
+    position: relative;
+    direction: rtl;
+    font-size: 16px;
+}
+
+.post-text p {
+    margin: 0;
+    padding: 4px 0;
+    line-height: 1.6;
+}
+
+.post-text.collapsed {
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.post-text.expanded {
+    display: block;
+}
+
+.post-text.expanded p {
+    white-space: pre-wrap;
+    padding: 2px 0;
+}
+
+.post-text p:first-child {
+    padding-top: 0;
+}
+
+.post-text p:last-child {
+    padding-bottom: 0;
+}
+
+.post-text p:empty {
+    min-height: 1em;
+    display: block;
+}
+
+.see-more-btn {
+    color: #1877f2;
+    cursor: pointer;
+    font-weight: 500;
+    margin-top: 8px;
+    display: none;
+    background: none;
+    border: none;
+    padding: 0;
+    text-align: right;
+    width: 100%;
+}
+
+.post-text-container {
+    position: relative;
+}
+
+.post-media {
+    margin-top: 10px;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.post-media img {
+        width: 400px;
+        height: 400px;
+        display: block;
+        object-fit: cover;
+        margin: 0 auto;
+}
+
+.video-container {
+    position: relative;
+    padding-bottom: 56.25%;
+    height: 0;
+    overflow: hidden;
+}
+
+.video-container video {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.post-actions {
+    display: flex;
+    justify-content: space-around;
+    padding: 8px;
+    border-top: 1px solid #ddd;
+}
+
+.action-btn {
+    background: none;
+    border: none;
+    padding: 8px;
+    color: #65676b;
+    cursor: pointer;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.action-btn:hover {
+    background: #f0f2f5;
+    border-radius: 4px;
+}
+
+.action-btn i {
+    font-size: 16px;
+}
+
+.user-info {
+    display: flex;
+    flex-direction: column;
+    margin-right: 10px;
+}
+
+.timestamp {
+    font-size: 12px;
+    color: #65676b;
+    margin-top: 2px;
+}
+
+.profession {
+    font-size: 12px;
+    color: #4CAF50;
+    margin-top: 2px;
+}
+
+.profile-circle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+.profile-circle img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Post Menu Styles */
+.post-menu {
+    position: relative;
+    margin-right: auto;
+    padding: 8px;
+
+}
+
+.menu-dots {
+    cursor: pointer;
+    color: #65676b;
+    padding: 8px;
+    border-radius: 50%;
+    
+}
+
+.menu-dots:hover {
+    background-color: #f0f2f5;
+}
+
+.menu-options {
+    display: none;
+    position: absolute;
+    left: 0;
+    top: 100%;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    z-index: 1000;
+    min-width: 150px;
+}
+
+.menu-option {
+    padding: 8px 16px;
+    cursor: pointer;
+    color: #050505;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.menu-option:hover {
+    background-color: #f0f2f5;
+}
+
+.menu-option i {
+    font-size: 16px;
+    width: 20px;
+}
+
+.delete-post {
+    color: #dc3545;
+}
+
+/* Edit Title Modal */
+.edit-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    z-index: 2000;
+}
+
+.edit-modal-content {
+    position: relative;
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 500px;
+    margin: 50px auto;
+}
+
+.edit-modal textarea {
+    width: 100%;
+    padding: 12px;
+    margin: 10px 0;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+    resize: vertical;
+    min-height: 120px;
+    text-align: right;
+    direction: rtl;
+    white-space: pre-wrap;
+    line-height: 1.6;
+}
+
+.edit-modal-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.edit-modal-buttons button {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.edit-modal-buttons .save-btn {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.edit-modal-buttons .cancel-btn {
+    background-color: #f0f2f5;
+    color: #050505;
+}
+
+/* Delete Confirmation Modal */
+.delete-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    z-index: 2000;
+}
+
+.delete-modal-content {
+    position: relative;
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 500px;
+    margin: 50px auto;
+    text-align: center;
+}
+
+.delete-modal-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.delete-modal-buttons button {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.delete-modal-buttons .confirm-delete {
+    background-color: #dc3545;
+    color: white;
+}
+
+.delete-modal-buttons .cancel-delete {
+    background-color: #f0f2f5;
+    color: #050505;
+}
+
+
+.replies-toggle {
+    margin-top: 5px;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+}
+
+.replies-toggle i {
+    margin-right: 5px;
+}
+
+.nested-comments {
+    margin-left: 20px;
+    border-left: 1px solid #ddd;
+    padding-left: 10px;
+}
+
+
+.filter-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.filter-btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 20px;
+    background-color: #f0f2f5;
+    color: #1a1a1a;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.filter-btn.active {
+    background-color: #4CAF50;
+    color: white;
+}
+
+/* النمط الأساسي لـ iframe-container */
+#message-container {
+    display: none; /* مخفي في البداية */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* خلفية شفافة */
+    z-index: 1000;
+    animation: fadeIn 0.5s;
+}
+
+/* محتوى iframe */
+#message-iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+/* رأس الحاوية مع زر الإغلاق */
+#message-header {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background-color: #f1f1f1;
+    padding: 10px;
+    box-sizing: border-box;
+    z-index: 1001;
+}
+
+#close-btn {
+    background-color: transparent;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    float: left;
+}
+
+/* الأنيميشن */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideIn {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+}
+
+@keyframes fadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+
+@keyframes slideOut {
+    from { transform: translateY(0); }
+    to { transform: translateY(100%); }
+}
+
+#message-container.show {
+    display: block;
+    animation: fadeIn 0.5s;
+}
+
+#message-container iframe {
+    animation: slideIn 0.5s;
+}
+
+#message-container.hide {
+    animation: fadeOut 0.5s, slideOut 0.5s;
+    opacity: 0;
+}
+</style>
+
+<!-- Edit Post Modal -->
+<div class="edit-modal" id="editModal">
+    <div class="edit-modal-content">
+        <h3>تعديل المنشور</h3>
+        <textarea id="editContentInput" placeholder="أدخل محتوى المنشور" rows="5"></textarea>
+        <div class="edit-modal-buttons">
+            <button class="save-btn" id="saveEditBtn">حفظ</button>
+            <button class="cancel-btn" id="cancelEditBtn">إلغاء</button>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="delete-modal" id="deleteModal">
+    <div class="delete-modal-content">
+        <h3>تأكيد الحذف</h3>
+        <p>هل أنت متأكد من حذف هذا المنشور؟</p>
+        <div class="delete-modal-buttons">
+            <button class="confirm-delete" id="confirmDeleteBtn">حذف</button>
+            <button class="cancel-delete" id="cancelDeleteBtn">إلغاء</button>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Comments Functionality
+// Comments Functionality
+$(document).ready(function () {
+  const commentsContainer = $("#commentsFixedContainer");
+  const commentsOverlay = $("#commentsOverlay");
+  const closeComments = $(".close-comments");
+  let currentPostId = null;
+
+  // Reply Modal Elements
+  const replyContainer = $("#replyFixedContainer");
+  const replyOverlay = $("#replyOverlay");
+  const closeReply = $(".close-reply");
+  let currentCommentId = null;
+
+  // تحميل التعليقات عند النقر على زر التعليق
+  $(".comment-btn").click(function () {
+    const postId = $(this).data("post-id");
+    currentPostId = postId;
+
+    // تحميل التعليقات
+    loadComments(postId);
+
+    // عرض الخلفية والحاوية
+    commentsOverlay.css("display", "block");
+    commentsContainer.css("display", "block");
+    document.body.style.overflow = "hidden"; // منع السكرول في الصفحة الرئيسية
+    setTimeout(() => {
+      commentsContainer.addClass("active");
+    }, 10);
+  });
+
+  // إغلاق التعليقات عند النقر خارج الحاوية
+  commentsOverlay.click(function () {
+    closeCommentsContainer();
+  });
+
+  // إغلاق حاوية التعليقات
+  closeComments.click(function () {
+    closeCommentsContainer();
+  });
+
+  // دالة إغلاق حاوية التعليقات
+  function closeCommentsContainer() {
+    commentsContainer.removeClass("active");
+    document.body.style.overflow = "auto"; // إعادة تفعيل السكرول في الصفحة الرئيسية
+    setTimeout(() => {
+      commentsContainer.css("display", "none");
+      commentsOverlay.css("display", "none");
+    }, 300);
+  }
+
+  // إرسال التعليق
+  $(".send-comment-btn").click(function () {
+    const input = commentsContainer.find(".comment-input");
+    const content = input.val().trim();
+
+    if (content && currentPostId) {
+      $.ajax({
+        url: "/add_comment",
+        method: "POST",
+        data: {
+          post_id: currentPostId,
+          content: content,
+          parent_id: null, // Root comment
+        },
+        success: function (response) {
+          if (response.success) {
+            input.val("");
+            loadComments(currentPostId);
+          }
+        },
+      });
+    }
+  });
+
+  // تحميل التعليقات
+  function loadComments(postId) {
+    $.get(`/get_comments/${postId}`, function (comments) {
+      const commentsList = commentsContainer.find(".comments-list");
+      commentsList.empty();
+
+      comments.forEach(function (comment) {
+        const commentHtml = generateCommentHtml(comment);
+        commentsList.append(commentHtml);
+      });
+    });
+  }
+
+  // دالة لتوليد HTML للتعليقات والردود
+  function generateCommentHtml(comment) {
+    const hasReplies = comment.replies && comment.replies.length > 0;
+    const repliesCount = hasReplies
+      ? `${comment.replies.length} رداً`
+      : "";
+
+    const repliesHtml = hasReplies
+      ? comment.replies
+          .map((reply) => generateReplyHtml(reply))
+          .join("")
+      : "";
+
+    return `
+      <div class="comment-item">
+          <div class="comment-user-avatar">
+              <img src="/static/${
+                comment.profile_photo
+              }" alt="${comment.username}">
+          </div>
+          <div class="comment-bubble">
+              <div class="comment-header">
+                  <span class="comment-username">${comment.username}</span>
+              </div>
+              <div class="comment-content">${comment.content}</div>
+              <div class="comment-time">${comment.created_at}</div>
+
+              <!-- عرض زر الردود المخفية إذا كان هناك ردود -->
+              ${
+                hasReplies
+                  ? `
+                  <div class="replies-toggle" data-comment-id="${comment.id}">
+                      <span class="replies-toggle-text" style="color: blue; cursor: pointer;">
+                          <i class="fas fa-chevron-down"></i> ${repliesCount}
+                      </span>
+                  </div>
+              `
+                  : ""
+              }
+
+              <!-- زر الرد -->
+              <button class="reply-btn" data-comment-id="${
+                comment.id
+              }" style="color: blue; cursor: pointer;">رد</button>
+
+              <!-- عرض الردود أسفل التعليق الرئيسي -->
+              <div class="replies-container" style="display: ${
+                hasReplies ? "block" : "none"
+              };">
+                  ${repliesHtml}
+              </div>
+          </div>
+      </div>
+  `;
+  }
+
+  // دالة لتوليد HTML للردود
+  function generateReplyHtml(reply) {
+    return `
+      <div class="comment-item nested-comment">
+          <div class="comment-user-avatar">
+              <img src="/static/${
+                reply.profile_photo
+              }" alt="${reply.username}">
+          </div>
+          <div class="comment-bubble">
+              <div class="comment-header">
+                  <span class="comment-username">${reply.username}</span>
+              </div>
+              <div class="comment-content">${reply.content}</div>
+              <div class="comment-time">${reply.created_at}</div>
+          </div>
+      </div>
+    `;
+  }
+
+  // إظهار حقل الرد عند النقر على زر الرد
+  $(document).on("click", ".reply-btn", function () {
+    currentCommentId = $(this).data("comment-id");
+    replyOverlay.css("display", "block");
+    replyContainer.css("display", "block");
+    setTimeout(() => {
+      replyContainer.addClass("active");
+    }, 10);
+  });
+
+  // إغلاق الرد عند النقر خارج الحاوية
+  replyOverlay.click(function () {
+    closeReplyContainer();
+  });
+
+  // إغلاق حاوية الرد
+  closeReply.click(function () {
+    closeReplyContainer();
+  });
+
+  // دالة إغلاق حاوية الرد
+  function closeReplyContainer() {
+    replyContainer.removeClass("active");
+    setTimeout(() => {
+      replyContainer.css("display", "none");
+      replyOverlay.css("display", "none");
+    }, 300);
+  }
+
+  // إرسال الرد على تعليق
+  $(".send-reply-btn").click(function () {
+    const input = replyContainer.find(".reply-input");
+    const content = input.val().trim();
+
+    if (content && currentPostId && currentCommentId) {
+      $.ajax({
+        url: "/add_comment",
+        method: "POST",
+        data: {
+          post_id: currentPostId,
+          content: content,
+          parent_id: currentCommentId, // Associate reply with parent
+        },
+        success: function (response) {
+          if (response.success) {
+            input.val("");
+            closeReplyContainer();
+            loadComments(currentPostId);
+          }
+        },
+      });
+    }
+  });
+
+  // إظهار أو إخفاء الردود عند النقر على زر "12 رداً" أو ما يعادله
+  $(document).on("click", ".replies-toggle-text", function () {
+    const toggle = $(this).closest(".replies-toggle");
+    const repliesContainer = toggle.siblings(".replies-container");
+    const icon = toggle.find("i");
+
+    if (repliesContainer.is(":visible")) {
+      repliesContainer.slideUp();
+      icon.removeClass("fa-chevron-up").addClass("fa-chevron-down");
+    } else {
+      repliesContainer.slideDown();
+      icon.removeClass("fa-chevron-down").addClass("fa-chevron-up");
+    }
+  });
+});
+
+
+</script>
+
+<script>
+$(document).ready(function() {
+    // تبديل عرض نموذج التعديل
+    $('#editProfileBtn').click(function() {
+        $('#editProfileForm').slideDown();
+    });
+
+    $('#cancelEdit').click(function() {
+        $('#editProfileForm').slideUp();
+    });
+
+    // إدارة المهارات
+    $('.add-skill').click(function() {
+        const skillValue = $(this).siblings('.skill-field').val();
+        if (skillValue.trim() !== "") {
+            const skillInput = `
+                <div class="skill-input">
+                    <input type="text" name="skill" class="skill-field" value="${skillValue}">
+                    <button type="button" class="remove-skill">-</button>
+                </div>
+            `;
+            $(this).parent().before(skillInput);
+            $(this).siblings('.skill-field').val("");
+        }
+    });
+
+    $(document).on('click', '.remove-skill', function() {
+        $(this).parent().remove();
+    });
+
+    // تقديم النموذج
+    $('#profileForm').on('submit', function(e) {
+        const skills = [];
+        $('.skill-field').each(function() {
+            const skill = $(this).val().trim();
+            if (skill) {
+                skills.push(skill);
+            }
+        });
+        $('#skills').val(JSON.stringify(skills));
+    });
+
+    // التحقق من اسم المستخدم
+    $('#username').on('input', function() {
+        const username = $(this).val();
+        if (username && username !== '{{ user.username }}') {
+            $.get('/validate-username', { username: username }, function(data) {
+                if (data.exists) {
+                    $('#username-validation-message').text('اسم المستخدم مستخدم بالفعل').addClass('error').removeClass('success');
+                } else {
+                    $('#username-validation-message').text('اسم المستخدم متاح').addClass('success').removeClass('error');
+                }
+            });
+        } else {
+            $('#username-validation-message').text('');
+        }
+    });
+
+    // تفعيل قائمة النقاط الثلاث
+    $('.menu-dots').click(function(e) {
+        e.stopPropagation();
+        const menuOptions = $(this).siblings('.menu-options');
+        $('.menu-options').not(menuOptions).hide();
+        menuOptions.toggle();
+    });
+
+    // إغلاق القائمة عند النقر في أي مكان آخر
+    $(document).click(function() {
+        $('.menu-options').hide();
+    });
+
+    // منع إغلاق القائمة عند النقر داخلها
+    $('.menu-options').click(function(e) {
+        e.stopPropagation();
+    });
+
+    let currentPostId = null;
+
+    // تفعيل زر تعديل المنشور
+    $('.edit-post').click(function() {
+        currentPostId = $(this).data('post-id');
+        const $text = $(this).closest('.post-card').find('.post-text');
+        const paragraphs = [];
+        $text.find('p').each(function() {
+            const content = $(this).text();
+            if (content === '\u00A0') { // &nbsp;
+                paragraphs.push('');
+            } else {
+                paragraphs.push(content);
+            }
+        });
+        $('#editContentInput').val(paragraphs.join('\n'));
+        $('#editModal').show();
+    });
+
+    // إغلاق نافذة التعديل
+    $('#cancelEditBtn').click(function() {
+        $('#editModal').hide();
+    });
+
+    // حفظ التعديل
+    $('#saveEditBtn').click(function() {
+        const newContent = $('#editContentInput').val();
+        if (currentPostId && newContent.trim()) {
+            $.ajax({
+                url: '/edit_post_content',
+                method: 'POST',
+                data: {
+                    post_id: currentPostId,
+                    new_content: newContent
+                },
+                success: function(response) {
+                    if (response.success) {
+                        location.reload();
+                    }
+                }
+            });
+        }
+        $('#editModal').hide();
+    });
+
+    // تفعيل زر حذف المنشور
+    $('.delete-post').click(function() {
+        currentPostId = $(this).data('post-id');
+        $('#deleteModal').show();
+    });
+
+    // إغلاق نافذة تأكيد الحذف
+    $('#cancelDeleteBtn').click(function() {
+        $('#deleteModal').hide();
+    });
+
+    // تأكيد الحذف
+    $('#confirmDeleteBtn').click(function() {
+        if (currentPostId) {
+            $.ajax({
+                url: '/delete_post',
+                method: 'POST',
+                data: {
+                    post_id: currentPostId
+                },
+                success: function(response) {
+                    if (response.success) {
+                        location.reload();
+                    }
+                }
+            });
+        }
+        $('#deleteModal').hide();
+    });
+
+    // تفعيل زر إظهار المزيد
+    $('.post-text').each(function() {
+        const $text = $(this);
+        const $btn = $text.closest('.post-content-box').find('.see-more-btn');
+        
+        // Get the original content
+        const content = $text.html();
+        
+        // Calculate line height and text height
+        const lineHeight = parseInt(window.getComputedStyle($text[0]).lineHeight);
+        const textHeight = $text[0].scrollHeight;
+        const numLines = Math.floor(textHeight / lineHeight);
+        
+        // Show button only if text has more than 4 lines
+        if (numLines > 4) {
+            $btn.show();
+            $text.addClass('has-more');
+        }
+    });
+
+    $('.see-more-btn').click(function() {
+        const $btn = $(this);
+        const $text = $btn.closest('.post-content-box').find('.post-text');
+        
+        if ($text.hasClass('collapsed')) {
+            $text.removeClass('collapsed').addClass('expanded');
+            $btn.text('إظهار أقل');
+        } else {
+            $text.removeClass('expanded').addClass('collapsed');
+            $btn.text('إظهار المزيد');
+        }
+    });
+
+    // Profile Photo Upload Functionality
+    $('#avatar').change(function(e) {
+        if (this.files && this.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                $('.profile-photo img').attr('src', e.target.result);
+            }
+            reader.readAsDataURL(this.files[0]);
+        }
+    });
+
+    // Remove Photo Functionality
+    $('#removePhotoBtn').click(function() {
+        $('.profile-photo img').attr('src', "{{ url_for('static', filename='uploads/default-avatar.jpg') }}");
+        $('#avatar').val('');
+        // Add a hidden input to signal photo removal
+        if (!$('#remove_photo').length) {
+            $('<input>').attr({
+                type: 'hidden',
+                id: 'remove_photo',
+                name: 'remove_photo',
+                value: 'true'
+            }).appendTo('#profileForm');
+        }
+    });
+});
+
+
+
+
+document.addEventListener("DOMContentLoaded", function () {
+  document.querySelectorAll(".share-btn").forEach(function (button) {
+    button.addEventListener("click", function () {
+      const postId = this.dataset.postId;
+      const shareUrl = `${window.location.origin}/post/${postId}`;
+
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(shareUrl).then(function () {
+          showPopup("تم نسخ الرابط");
+        }).catch(function (err) {
+          console.error("فشل نسخ الرابط: ", err);
+        });
+      } else {
+        const tempInput = document.createElement("input");
+        tempInput.value = shareUrl;
+        document.body.appendChild(tempInput);
+        tempInput.select();
+        try {
+          document.execCommand("copy");
+          showPopup("تم نسخ الرابط ");
+        } catch (err) {
+          console.error("فشل نسخ الرابط باستخدام الطريقة البديلة: ", err);
+        }
+        document.body.removeChild(tempInput);
+      }
+
+      function showPopup(message) {
+        const modal = document.createElement("div");
+        modal.style.position = "fixed";
+        modal.style.bottom = "20%";
+        modal.style.left = "50%";
+        modal.style.transform = "translateX(-50%)";
+        modal.style.backgroundColor = "#333";
+        modal.style.color = "#fff";
+        modal.style.padding = "15px 20px";
+        modal.style.borderRadius = "8px";
+        modal.style.boxShadow = "0 4px 6px rgba(0, 0, 0, 0.1)";
+        modal.style.opacity = "0";
+        modal.style.transition = "opacity 0.4s ease, bottom 0.4s ease";
+        modal.style.zIndex = "1000";
+        modal.textContent = message;
+
+        document.body.appendChild(modal);
+
+        setTimeout(() => {
+          modal.style.opacity = "1";
+          modal.style.bottom = "25%";
+        }, 10);
+
+        setTimeout(() => {
+          modal.style.opacity = "0";
+          modal.style.bottom = "20%";
+          setTimeout(() => {
+            modal.remove();
+          }, 400);
+        }, 3000);
+      }
+    });
+  });
+});
+
+
+
+$(document).ready(function () {
+    // تفعيل الفلترات
+    $('.filter-btn').click(function () {
+        // إزالة النشط من جميع الأزرار
+        $('.filter-btn').removeClass('active');
+        // إضافة النشط للزر المحدد
+        $(this).addClass('active');
+
+        const filterType = $(this).attr('id'); // الحصول على نوع الفلتر
+        let hasPosts = false; // متغير لتتبع وجود منشورات مطابقة
+
+        // إخفاء جميع المنشورات
+        $('.post-card').hide();
+
+        if (filterType === 'filterAll') {
+            // عرض جميع المنشورات
+            $('.post-card').show();
+            hasPosts = $('.post-card').length > 0; // تحقق إذا كان هناك منشورات
+        } else if (filterType === 'filterImages') {
+            // عرض المنشورات التي تحتوي على صور فقط
+            $('.post-card').each(function () {
+                if ($(this).find('.post-media img').length > 0) {
+                    $(this).show();
+                    hasPosts = true; // يوجد منشورات مطابقة
+                }
+            });
+        } else if (filterType === 'filterVideos') {
+            // عرض المنشورات التي تحتوي على فيديوهات فقط
+            $('.post-card').each(function () {
+                if ($(this).find('.post-media video').length > 0) {
+                    $(this).show();
+                    hasPosts = true; // يوجد منشورات مطابقة
+                }
+            });
+        } else if (filterType === 'filterText') {
+            // عرض المنشورات التي تحتوي على نص فقط
+            $('.post-card').each(function () {
+                if ($(this).find('.post-text').length > 0 && $(this).find('.post-media').length === 0) {
+                    $(this).show();
+                    hasPosts = true; // يوجد منشورات مطابقة
+                }
+            });
+        }
+
+        // إظهار أو إخفاء الرسالة بناءً على وجود منشورات مطابقة
+        if (hasPosts) {
+            $('#noPostsMessage').hide(); // إخفاء الرسالة إذا كانت هناك منشورات
+        } else {
+            $('#noPostsMessage').show(); // إظهار الرسالة إذا لم تكن هناك منشورات
+        }
+    });
+});
+
+// فكرة بحيث يظهر مشاركة عبر 
+
+
+// دالة لفتح الرسالة
+function openMessage() {
+    var container = document.getElementById('message-container');
+    if (container) {
+        // إظهار الحاوية
+        container.style.display = 'block';
+        container.classList.remove('hide'); // إزالة فئة الإخفاء
+        container.classList.add('show'); // إضافة فئة العرض
+
+        // تحقق مما إذا كان الـ iframe موجودًا بالفعل
+        var existingIframe = document.getElementById('message-iframe');
+        if (!existingIframe) {
+            // إنشاء iframe جديد إذا لم يكن موجودًا
+            var iframe = document.createElement('iframe');
+            iframe.id = 'message-iframe';
+            iframe.src = "{{ url_for('messages', user_email=user.email) }}"; // مسار الرسالة
+            container.appendChild(iframe); // إضافة iframe إلى الحاوية
+        }
+    }
+}
+
+// دالة لإغلاق الرسالة (حذف iframe نهائيًا وإعلام الخادم)
+function closeMessage() {
+    var container = document.getElementById('message-container');
+    if (container) {
+        // إضافة كلاس hide لتشغيل أنيميشن الإغلاق
+        container.classList.remove('show'); // إزالة فئة العرض
+        container.classList.add('hide'); // إضافة فئة الإخفاء
+
+        // الانتظار حتى يكتمل الأنيميشن قبل إخفاء العنصر
+        setTimeout(function() {
+            container.style.display = 'none';
+
+            // حذف الـ iframe نهائيًا
+            var iframe = document.getElementById('message-iframe');
+            if (iframe) {
+                iframe.remove(); // إزالة iframe من DOM
+            }
+
+            // إرسال طلب إلى الخادم لإعلامه بأن المستخدم قد غادر الدردشة
+            fetch('/leave_chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json' // نوع المحتوى
+                },
+                credentials: 'include' // لإرسال الكوكيز إذا لزم الأمر
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    console.log("تم إعلام الخادم بأن المستخدم قد غادر الدردشة.");
+                } else {
+                    console.error("فشل في إعلام الخادم.");
+                }
+            })
+            .catch(error => {
+                console.error("حدث خطأ أثناء إرسال الطلب:", error);
+            });
+        }, 500); // الانتظار لمدة 0.5 ثانية (مدة الأنيميشن)
+    }
+}
+
+// إضافة مستمع الحدث لزر الإغلاق
+var closeBtn = document.getElementById("close-btn");
+if (closeBtn) {
+    closeBtn.addEventListener("click", function () {
+        console.log("تم النقر على زر الإغلاق");
+        closeMessage(); // استدعاء دالة الإغلاق
+    });
+}
+</script>
+{% endblock %}

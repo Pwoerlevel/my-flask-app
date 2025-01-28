@@ -1,0 +1,37 @@
+<div class="post-header">
+    <!-- صورة المستخدم الذي نشر المنشور -->
+    <div class="profile-circle">
+        <img src="{{ url_for('static', filename=current_user.profile_photo) }}" alt="الصورة الشخصية">
+    </div>
+    <div class="user-info">
+        <span class="username">{{ user.username }}</span>  <!-- اسم المستخدم -->
+        <span class="profession">{{ user.profession }}</span>  <!-- تخصص المستخدم -->
+        <span class="timestamp">{{ post.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</span>  <!-- وقت نشر المنشور -->
+    </div>
+</div>
+
+<!-- محتوى المنشور -->
+<div class="post-content">
+    <!-- <h2>{{ post.title }}</h2> -->
+    <p>{{ post.content }}</p>
+    {% if post.image_url %}
+        <img src="{{ url_for('static', filename=post.image_url) }}" alt="Post Image">  <!-- صورة المنشور -->
+    {% endif %}
+</div>
+
+<!-- رابط المشاركة -->
+<div class="share">
+    <label>شارك هذا المنشور:</label>
+    <input type="text" value="{{ url_for('view_post', post_id=post.id, _external=True) }}" readonly>
+    <button onclick="copyToClipboard()">نسخ الرابط</button>
+</div>
+
+<script>
+    function copyToClipboard() {
+        var copyText = document.querySelector('.share input');
+        copyText.select();
+        copyText.setSelectionRange(0, 99999);  // لنسخ النص في الأجهزة المحمولة
+        document.execCommand('copy');
+        alert('تم نسخ الرابط!');
+    }
+</script>

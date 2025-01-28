@@ -1,0 +1,2997 @@
+<!DOCTYPE html>
+<html lang="ar">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>لوحة التحكم</title>
+
+    <!-- استدعاء مكتبة Font Awesome -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    />
+    <!-- استدعاء مكتبة jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <style>
+      /* إعدادات عامة للجوال */
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: "Arial", sans-serif;
+        background-color: #f0f2f5;
+      }
+
+      .top-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background-color: #4caf50;
+        padding: 15px;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        z-index: 100;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        height: 50px;
+        padding: 10px 20px;
+      }
+
+      /* الدائرة */
+      .profile-circle {
+        position: relative;
+        display: inline-block;
+        cursor: pointer;
+        width: 40px;
+        height: 40px;
+      }
+      .profile-circle img {
+        object-fit: cover;
+      }
+      #profileCircle img {
+        border-radius: 50%;
+      }
+
+      /* الدائرة */
+      .profile-circle {
+        position: relative;
+        display: inline-block;
+        cursor: pointer;
+
+        border-radius: 50%;
+        flex-shrink: 0;
+      }
+      .profile-circle img {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+      }
+      #profileCircle {
+        margin-right: 27px;
+      }
+
+      /* القائمة المنسدلة */
+      .dropdown-menu {
+        display: none; /* إخفاء القائمة بشكل افتراضي */
+        position: absolute;
+        top: 48px;
+        right: -8px;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 12px 28px 0 rgba(0, 0, 0, 0.2),
+          0 2px 4px 0 rgba(0, 0, 0, 0.1);
+        z-index: 1100;
+        min-width: 220px;
+        box-sizing: border-box;
+        overflow: hidden;
+        padding: 8px 0;
+      }
+
+      /* السهم الذي يشير إلى القائمة */
+      .dropdown-menu::before {
+        content: "";
+        position: absolute;
+        top: -8px;
+        right: 20px;
+        width: 16px;
+        height: 16px;
+        background: #fff;
+        transform: rotate(45deg);
+        box-shadow: -2px -2px 3px rgba(0, 0, 0, 0.08);
+      }
+
+      /* تصميم الروابط داخل القائمة */
+      .dropdown-menu a {
+        display: block;
+        padding: 12px 16px;
+        text-decoration: none;
+        color: #050505;
+        font-size: 15px;
+        text-align: right;
+        font-weight: 500;
+        transition: background-color 0.2s ease;
+      }
+
+      /* تأثير التمرير على الروابط */
+      .dropdown-menu a:hover {
+        background-color: #f2f2f2;
+      }
+
+      /* فاصل بين العناصر */
+      .dropdown-menu a:not(:last-child) {
+        border-bottom: 1px solid #e4e6eb;
+      }
+
+      /* نافذة عرض بيانات الحساب */
+      .fullscreen-container {
+        display: none; /* إخفاء النافذة بشكل افتراضي */
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.6); /* خلفية مظللة */
+        z-index: 1200;
+        padding: 50px;
+        background-color: #fff;
+      }
+
+      .content {
+        background: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        max-width: 600px;
+        margin: auto;
+      }
+
+      .close-btn {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        font-size: 30px;
+        cursor: pointer;
+      }
+
+      .fullscreen-container h2 {
+        text-align: center;
+        margin-bottom: 20px;
+      }
+
+      .fullscreen-container p,
+      .fullscreen-container ul {
+        margin: 10px 0;
+        line-height: 1.6;
+      }
+    </style>
+  </head>
+
+  <body>
+
+  
+    <div class="top-bar">
+      <!-- زر إنشاء منشور جديد -->
+      <button class="create-post-btn" id="createPostBtn">
+        <i class="fas fa-plus"></i> إنشاء منشور
+      </button>
+      <button class="chat-button">💬</button>
+
+      <div id="notifications">
+        <button id="notification-btn">
+             <span id="notification-count">0</span>
+        </button>
+        <a href="#" style="text-decoration: none;">
+          <button id="artical-open-btn">AI</button>
+      </a>
+      
+      <!-- <a href="/videos" style="text-decoration: none;"> -->
+        <button class="video_page" >V</button>
+    <!-- </a> -->
+        <div id="notification-list">
+            <!-- الإشعارات ستظهر هنا -->
+        </div>
+    </div>
+    <button class="search-btn" id="openSearchModalBtn">بحث عن مستخدم</button>
+
+
+    
+   <!-- زر فتح نافذة الشات -->
+
+<!-- نافذة الشات -->
+<div class="chat-window" id="chatWindow" style="display: none;">
+    <div class="chat-header">المحادثات <button class="close-main-chat">Close</button></div>
+    <div id="chatList" class="chat-list">
+        <!-- قائمة المستخدمين سيتم تعبئتها ديناميكيًا هنا -->
+    </div>
+</div>
+
+
+    <!-- Container للـ iframe -->
+    <div id="artical-iframe-container">
+      <button id="artical-close-btn">إغلاق</button>
+      <iframe id="artical-iframe" src=""></iframe>
+  </div>
+
+      <!-- دائرة الملف الشخصي -->
+      <div class="profile-circle" id="profileCircle">
+        <img
+          src="{{ url_for('static', filename=current_user.profile_photo) }}"
+          alt="صورة الملف الشخصي"
+        />
+        <div class="dropdown-menu" id="dropdownMenu">
+          <a href="{{ url_for('profile') }}" id="profile-link">الملف الشخصي</a>
+          <a href="{{ url_for('logout') }}">تسجيل الخروج</a>
+        </div>
+      </div>
+    </div>
+
+
+      <!-- حاوية الملف الشخصي -->
+      <div id="profile-container">
+        <div id="profile-header">
+            <button id="close-profile-btn">✕</button>
+        </div>
+        <iframe id="profile-iframe"></iframe>
+    </div>
+<!-- موديل البحث -->
+<div class="modal-search" id="searchModal">
+  <div class="modal-search-content">
+      <span class="close-search-modal" id="closeSearchModalBtn">&times;</span>
+      <input type="text" class="search-input" id="searchInput" placeholder="ابحث عن مستخدم..." onkeyup="searchUsers()" />
+      <div class="search-results" id="searchResults"></div>
+  </div>
+</div>
+
+    <button id="closeChatFrame">إغلاق</button>
+    <iframe id="chatFrame" src="">
+  </iframe>
+  
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const profileCircle = document.getElementById("profileCircle");
+        const dropdownMenu = document.getElementById("dropdownMenu");
+
+        // دالة لتبديل عرض القائمة المنسدلة
+        function toggleDropdown(e) {
+          e.stopPropagation(); // منع الحدث من الانتقال إلى العناصر الأخرى
+
+          // إذا كانت القائمة مخفية، فإظهارها
+          if (
+            dropdownMenu.style.display === "none" ||
+            dropdownMenu.style.display === ""
+          ) {
+            dropdownMenu.style.display = "block";
+          } else {
+            // إذا كانت القائمة ظاهرة، فإخفاؤها
+            dropdownMenu.style.display = "none";
+          }
+        }
+
+        // إضافة حدث عند النقر على دائرة الملف الشخصي
+        profileCircle.addEventListener("click", toggleDropdown);
+
+        // إغلاق القائمة عند النقر في أي مكان آخر
+        document.addEventListener("click", (e) => {
+          if (
+            !profileCircle.contains(e.target) &&
+            dropdownMenu.style.display === "block"
+          ) {
+            dropdownMenu.style.display = "none"; // إخفاء القائمة
+          }
+        });
+
+        // منع إغلاق القائمة عند النقر داخلها
+        dropdownMenu.addEventListener("click", (e) => {
+          e.stopPropagation(); // منع الحدث من الانتقال إلى العناصر الأخرى
+        });
+      });
+    </script>
+
+    <!-- إطار إنشاء المنشور -->
+    <div class="post-modal" id="postModal">
+      <div class="modal-overlay"></div>
+      <div class="modal-content">
+        <div class="modal-header">
+          <span class="close-modal">&times;</span>
+          <h3>إنشاء منشور جديد</h3>
+        </div>
+        <iframe src="{{ url_for('create_post') }}" frameborder="0"></iframe>
+      </div>
+    </div>
+
+    <!-- Comments Fixed Container -->
+    <div class="comments-overlay" id="commentsOverlay"></div>
+    <div class="comments-fixed-container" id="commentsFixedContainer">
+      <div class="comments-content">
+        <div class="comments-header">
+          <h3>التعليقات</h3>
+          <span class="close-comments">&times;</span>
+        </div>
+        <div class="comments-list-container">
+          <div class="comments-list"></div>
+        </div>
+        <div class="comment-input-container">
+          <textarea
+            class="comment-input"
+            placeholder="اكتب تعليقك هنا..."
+            rows="1"
+          ></textarea>
+          <button class="send-comment-btn">
+            <i class="fas fa-paper-plane"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+    
+    <div class="reply-overlay" id="replyOverlay"></div>
+    <div class="reply-fixed-container" id="replyFixedContainer">
+      <div class="reply-content">
+        <div class="reply-header">
+          <h3>الرد</h3>
+          <span class="close-reply">&times;</span>
+        </div>
+        <div class="reply-input-container">
+          <textarea
+            class="reply-input"
+            placeholder="اكتب ردك هنا..."
+            rows="1"
+          ></textarea>
+          <button class="send-reply-btn">
+            <i class="fas fa-paper-plane"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+    
+
+    <style>
+      /* Comments Fixed Container Styles */
+    /* Comments Fixed Container Styles */
+.comments-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1999;
+}
+
+.comments-fixed-container {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 80%;
+  background: white;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+  z-index: 2000;
+  transform: translateY(100%);
+  transition: transform 0.3s ease-out;
+}
+
+.comments-fixed-container.active {
+  transform: translateY(0);
+}
+
+.comments-content {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.comments-header {
+  padding: 16px;
+  border-bottom: 1px solid #ddd;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.comments-header h3 {
+  margin: 0;
+  text-align: center;
+  flex-grow: 1;
+}
+
+.close-comments {
+  font-size: 24px;
+  cursor: pointer;
+  color: #666;
+  padding: 8px;
+}
+
+.comments-list-container {
+  flex-grow: 1;
+  overflow-y: auto;
+  padding: 16px;
+}
+
+.comments-container {
+  flex-grow: 1;
+  overflow-y: auto;
+  padding: 16px;
+}
+
+.comment-input-container {
+  padding: 12px;
+  border-top: 1px solid #ddd;
+  background: white;
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.comment-input {
+  flex: 1;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+  resize: none;
+  font-size: 14px;
+  direction: rtl;
+}
+
+.send-comment-btn {
+  background: #4caf50;
+  color: white;
+  border: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.send-comment-btn:hover {
+  background: #45a049;
+}
+
+.comments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  direction: rtl;
+}
+
+.comment-item {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+  align-items: flex-start;
+  padding: 0 8px;
+}
+
+.comment-user-avatar {
+  width: 45px;
+  height: 45px;
+  flex-shrink: 0;
+  margin-left: 8px;
+}
+
+.comment-user-avatar img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.comment-bubble {
+  background: #f0f2f5;
+  border-radius: 18px;
+  padding: 8px 12px;
+  flex-grow: 1;
+}
+
+.comment-header {
+  margin-bottom: 4px;
+}
+
+.comment-username {
+  font-weight: 600;
+  color: #050505;
+  font-size: 13px;
+}
+
+.comment-content {
+  color: #050505;
+  font-size: 14px;
+  line-height: 1.4;
+  word-wrap: break-word;
+}
+
+.comment-time {
+  font-size: 11px;
+  color: #65676b;
+  margin-top: 4px;
+}
+
+.nested-comments {
+  margin-left: 20px;
+}
+
+.reply-input-container {
+  margin-top: 10px;
+}
+
+.reply-text {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+  resize: none;
+  font-size: 14px;
+  direction: rtl;
+}
+
+.send-reply-btn {
+  margin-top: 5px;
+  color: white;
+  background-color: blue;
+  border: none;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+/* Reply Modal Styles */
+.reply-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 2001;
+}
+
+.reply-fixed-container {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 30%;
+  background: white;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+  z-index: 2002;
+  transform: translateY(100%);
+  transition: transform 0.3s ease-out;
+}
+
+.reply-fixed-container.active {
+  transform: translateY(0);
+}
+
+.reply-content {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.reply-header {
+  padding: 16px;
+  border-bottom: 1px solid #ddd;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.reply-header h3 {
+  margin: 0;
+  text-align: center;
+  flex-grow: 1;
+}
+
+.close-reply {
+  font-size: 24px;
+  cursor: pointer;
+  color: #666;
+  padding: 8px;
+}
+
+.reply-input-container {
+  padding: 12px;
+  border-top: 1px solid #ddd;
+  background: white;
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.reply-input {
+  flex: 1;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+  resize: none;
+  font-size: 14px;
+  direction: rtl;
+}
+
+.send-reply-btn {
+  background: #4caf50;
+  color: white;
+  border: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+
+}
+.reply-btn{
+  color: blue;
+    cursor: pointer;
+    margin-right: 82%;
+    transform: translate(0%, -18px);
+}
+
+.send-reply-btn:hover {
+  background: #45a049;
+}
+
+      /* أزرار جديدة */
+      .create-post-btn {
+        background-color: #fff;
+        color: #4caf50;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 20px;
+        cursor: pointer;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .create-post-btn:hover {
+        background-color: #f0f2f5;
+      }
+
+      /* نافذة المنشور */
+      .post-modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 1000;
+      }
+
+      .modal-overlay {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+      }
+/* 
+      .modal-content {
+        position: relative;
+        width: 90%;
+        max-width: 700px;
+        height: 80%;
+        background: white;
+        margin: 50px auto;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      } */
+
+      .modal-header {
+        padding: 15px;
+        border-bottom: 1px solid #ddd;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .close-modal {
+        font-size: 24px;
+        cursor: pointer;
+        color: #666;
+      }
+
+      .modal-content iframe {
+        width: 100%;
+        height: calc(100% - 60px);
+        border: none;
+      }
+
+      .modal-header h3 {
+        margin: 0;
+        text-align: center;
+        flex-grow: 1;
+      }
+
+/* إعدادات عامة للـ iframe */
+#chatFrame {
+    position: fixed; /* يجعل الـ iframe في مكان ثابت فوق الصفحة */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: white; /* يمكنك تعديل اللون أو وضع صورة خلفية */
+    border: none; /* إزالة الحدود حول الـ iframe */
+    z-index: 9999; /* تعيين z-index عالٍ لجعل الـ iframe يظهر فوق كل العناصر الأخرى */
+    display: none; /* إخفاء الـ iframe في البداية */
+}
+
+/* زر الإغلاق */
+#closeChatFrame {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: red;
+    color: white;
+    padding: 10px;
+    border: none;
+    cursor: pointer;
+    z-index: 10000; /* يجب أن يكون الزر فوق الـ iframe */
+    font-size: 16px;
+    display: none;
+}
+
+#closeChatFrame:hover {
+    background-color: darkred;
+
+}
+      
+    </style>
+
+    <script>
+      // إضافة كود جافا سكريبت للنافذة المنبثقة
+      const createPostBtn = document.getElementById("createPostBtn");
+      const postModal = document.getElementById("postModal");
+      const closeModal = document.querySelector(".close-modal");
+      const modalOverlay = document.querySelector(".modal-overlay");
+
+      createPostBtn.addEventListener("click", () => {
+        postModal.style.display = "block";
+        document.body.style.overflow = "hidden"; // منع التمرير في الخلفية
+      });
+
+      function closePostModal() {
+        postModal.style.display = "none";
+        document.body.style.overflow = "auto"; // إعادة تمكين التمرير
+      }
+
+      closeModal.addEventListener("click", closePostModal);
+      modalOverlay.addEventListener("click", closePostModal);
+    </script>
+
+<!-- عرض المنشورات -->
+<div class="posts-container">
+  {% for post in posts %}
+  <div class="post-card">
+    <div class="post-header">
+      <div class="profile-circle">
+        <a href="{{ url_for('public_profile', user_email=post.user_email) }}" class="public-profile-link">
+          <img src="{{ url_for('static', filename=post_authors[post.user_email]) }}" alt="صورة الملف الشخصي" />
+      </a>
+    </div>
+    
+      <div class="user-info">
+        <span class="username">{{ post.user_email.split('@')[0] }}</span>
+        <span class="profession">{{ post.user_profession }}</span>
+        <span class="timestamp">{{ post.created_at|format_datetime }}</span>
+      </div>
+      {% if post.user_email == current_user.email %}
+      <div class="post-menu">
+        <i class="fas fa-ellipsis-v menu-dots"></i>
+      </div>
+      {% endif %}
+    </div>
+
+    <div
+      class="post-content"
+      {%
+      if
+      post.background_color
+      and
+      not
+      post.image_url
+      %}style="background-color: {{ post.background_color }}; border-radius: 8px; text-align: center; font-size: 24px;"
+      {%
+      endif
+      %}
+    >
+      {% if post.title %}
+      <h3 class="post-title">{{ post.title }}</h3>
+      {% endif %} {% if post.content %}
+      <div class="post-text-container">
+        <p
+          class="post-text collapsed"
+          {%
+          if
+          post.background_color
+          and
+          not
+          post.image_url
+          %}style="color: {% if post.background_color == '#ffffff' %}#1a1a1a{% else %}#000000{% endif %};"
+          {%
+          endif
+          %}
+        >
+          {{ post.content }}
+        </p>
+        <button class="see-more-btn">إظهار المزيد</button>
+      </div>
+      {% endif %} {% if post.image_url %}
+      <div class="post-media">
+        <img
+          src="{{ url_for('static', filename=post.image_url) }}"
+          alt="صورة المنشور"
+        />
+      </div>
+      {% endif %} {% if post.video_url %}
+      <div class="post-media video-container">
+        <video
+          src="{{ url_for('static', filename=post.video_url) }}"
+          controls
+        ></video>
+      </div>
+      {% endif %}
+    </div>
+
+    <div class="post-actions">
+      <button class="action-btn comment-btn" data-post-id="{{ post.id }}">
+        <i class="fas fa-comment"></i> تعليق
+      </button>
+      <button class="action-btn share-btn" data-post-id="{{ post.id }}">
+        <i class="fas fa-share"></i> مشاركة
+      </button>
+    </div>
+
+    <!-- قسم التعليقات -->
+    <div
+      class="comments-section"
+      data-post-id="{{ post.id }}"
+      style="display: none"
+    >
+      <div class="comment-input-container">
+        <textarea
+          class="comment-input"
+          placeholder="اكتب تعليقك هنا..."
+          rows="1"
+        ></textarea>
+        <button class="send-comment-btn">
+          <i class="fas fa-paper-plane"></i>
+        </button>
+      </div>
+      <div class="comments-list"></div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+
+
+<!-- Modal لعرض المنشور -->
+<div class="post-view-modal" id="postViewModal" style="{% if show_post_modal %}display: block;{% else %}display: none;{% endif %}">
+  <div class="modal-overlay"></div>
+  <div class="modal-content">
+    <div class="modal-header">
+      <span class="close-modal">&times;</span>
+      <h3>عرض المنشور</h3>
+    </div>
+    <div class="post-content">
+      {% if post %}
+        <div class="post-header">
+          <div class="profile-circle">
+        <a href="{{ url_for('public_profile', user_email=post.user_email) }}">
+            <img src="{{ url_for('static', filename=post_authors[post.user_email]) }}" alt="صورة الملف الشخصي" />
+        </a>
+    </div>
+          <div class="user-info">
+            <span class="username">{{ post.user_email.split('@')[0] }}</span>
+            <span class="profession">{{ post.user_profession }}</span>
+            <span class="timestamp">{{ post.created_at|format_datetime }}</span>
+          </div>
+          {% if post.user_email == current_user.email %}
+          <div class="post-menu">
+            <i class="fas fa-ellipsis-v menu-dots"></i>
+            <div class="menu-options" style="display: none;">
+              <div class="menu-option edit-post" data-post-id="{{ post.id }}">
+                <i class="fas fa-edit"></i> تعديل المنشور
+              </div>
+              <div class="menu-option delete-post" data-post-id="{{ post.id }}">
+                <i class="fas fa-trash"></i> حذف المنشور
+              </div>
+            </div>
+          </div>
+          {% endif %}
+        </div>
+
+        <div
+          class="post-content-box"
+          {% if post.background_color and not post.image_url %}
+          style="background-color: {{ post.background_color }}; border-radius: 8px; text-align: center; font-size: 24px;"
+          {% endif %}
+        >
+          <div class="post-text-container">
+            <p
+              class="post-text collapsed"
+              {% if post.background_color and not post.image_url %}
+              style="color: {% if post.background_color == '#ffffff' %}#1a1a1a{% else %}#000000{% endif %};"
+              {% endif %}
+            >
+              {{ post.content }}
+            </p>
+            <button class="see-more-btn">إظهار المزيد</button>
+          </div>
+        </div>
+
+        {% if post.image_url %}
+          <div class="post-media">
+            <img src="{{ url_for('static', filename=post.image_url) }}" alt="صورة المنشور">
+          </div>
+        {% endif %}
+
+        {% if post.video_url %}
+          <div class="post-media video-container">
+            <video src="{{ url_for('static', filename=post.video_url) }}" controls></video>
+          </div>
+        {% endif %}
+
+        <!-- أزرار الإجراءات -->
+        <div class="post-actions">
+          <button class="action-btn comment-btn" data-post-id="{{ post.id }}">
+            <i class="fas fa-comment"></i> تعليق
+          </button>
+          <button class="action-btn share-btn" data-post-id="{{ post.id }}">
+            <i class="fas fa-share"></i> مشاركة
+          </button>
+        </div>
+
+        <!-- قسم التعليقات -->
+        <div class="comments-section" data-post-id="{{ post.id }}" style="display: none">
+          <div class="comment-input-container">
+            <textarea class="comment-input" placeholder="اكتب تعليقك هنا..." rows="1"></textarea>
+            <button class="send-comment-btn">
+              <i class="fas fa-paper-plane"></i>
+            </button>
+          </div>
+          <div class="comments-list"></div>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+
+<!-- Modal لتعديل المنشور -->
+<div class="edit-modal" id="editModal" style="display: none;">
+  <div class="edit-modal-content">
+    <h3>تعديل المنشور</h3>
+    <textarea id="editContentInput" placeholder="أدخل محتوى المنشور" rows="5"></textarea>
+    <div class="edit-modal-buttons">
+      <button class="save-btn" id="saveEditBtn">حفظ</button>
+      <button class="cancel-btn" id="cancelEditBtn">إلغاء</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- Modal لحذف المنشور -->
+<div class="delete-modal" id="deleteModal" style="display: none;">
+  <div class="delete-modal-content">
+    <h3>تأكيد الحذف</h3>
+    <p>هل أنت متأكد من حذف هذا المنشور؟</p>
+    <div class="delete-modal-buttons">
+      <button class="confirm-delete" id="confirmDeleteBtn">حذف</button>
+      <button class="cancel-delete" id="cancelDeleteBtn">إلغاء</button>
+    </div>
+  </div>
+</div>
+
+
+
+  <!-- حاوية الملف الشخصي العام -->
+  <div id="public-profile-container">
+    <div id="public-profile-header">
+        <button id="close-public-profile-btn">✕</button>
+    </div>
+    <iframe id="public-profile-iframe"></iframe>
+</div>
+
+
+    <style>
+      .posts-container {
+        max-width: 600px;
+        margin: 80px auto 20px;
+        padding: 0 15px;
+      }
+
+      .post-card {
+        background: #fff;
+        border-radius: 8px;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+      }
+
+      .post-header {
+        display: flex;
+        align-items: center;
+        padding: 12px;
+      }
+
+      .post-content {
+        padding: 12px;
+      }
+
+      .post-title {
+        margin: 0 0 8px 0;
+        font-size: 18px;
+        text-align: right;
+      }
+
+      .post-text-container {
+        position: relative;
+      }
+
+      .post-content-box {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 12px;
+        margin-bottom: 10px;
+      }
+
+      .post-text {
+        margin: 0;
+        color: #1a1a1a;
+        line-height: 1.6;
+        text-align: right;
+        word-wrap: break-word;
+        position: relative;
+        direction: rtl;
+        font-size: 16px;
+      }
+
+      .post-text p {
+        margin: 0;
+        padding: 8px 0;
+        line-height: inherit;
+        white-space: pre-wrap;
+      }
+
+      .post-text.collapsed {
+        display: -webkit-box;
+        -webkit-line-clamp: 4;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        max-height: calc(1.6em * 4); /* 4 lines maximum height */
+        position: relative;
+      }
+
+      .post-text.expanded {
+        display: block;
+        max-height: none;
+      }
+
+      .post-text p:first-child {
+        padding-top: 0;
+      }
+
+      .post-text p:last-child {
+        padding-bottom: 0;
+      }
+
+      .post-text p:empty {
+        min-height: 1.6em;
+        display: block;
+        margin: 4px 0;
+      }
+
+      .see-more-btn {
+        color: #1877f2;
+        cursor: pointer;
+        font-weight: 500;
+        margin-top: 8px;
+        display: none;
+        background: none;
+        border: none;
+        padding: 0;
+        text-align: right;
+        width: 100%;
+      }
+
+      .post-media {
+        margin-top: 10px;
+        border-radius: 8px;
+        overflow: hidden;
+      }
+
+      .post-media img {
+         /* width: 400px; */
+        /* height: 400px;  */
+        max-width: 100%;
+        display: block;
+        /* border-radius: 50%; */
+        object-fit: cover;
+        margin: 0 auto;
+      }
+
+      .video-container {
+        position: relative;
+        padding-bottom: 56.25%; /* 16:9 نسبة العرض للفيديو */
+        height: 0;
+        overflow: hidden;
+      }
+
+      .video-container video {
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .post-actions {
+        display: flex;
+        justify-content: space-around;
+        padding: 8px;
+        border-top: 1px solid #ddd;
+      }
+
+      .action-btn {
+        background: none;
+        border: none;
+        padding: 8px;
+        color: #65676b;
+        cursor: pointer;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+      }
+
+      .action-btn:hover {
+        background: #f0f2f5;
+        border-radius: 4px;
+      }
+
+      .action-btn i {
+        font-size: 16px;
+      }
+
+      .user-info {
+        display: flex;
+        flex-direction: column;
+        margin-right: 10px;
+        margin-left: 10px;
+      }
+
+      .timestamp {
+        font-size: 12px;
+        color: #65676b;
+        margin-top: 2px;
+      }
+
+      .profession {
+        font-size: 12px;
+        color: #4caf50;
+        margin-top: 2px;
+      }
+
+      /* Post Menu Styles */
+      .post-menu {
+        position: relative;
+        margin-right: auto;
+        padding: 8px;
+      }
+
+      .menu-dots {
+        cursor: pointer;
+        color: #65676b;
+        padding: 8px;
+        border-radius: 50%;
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .menu-dots:hover {
+        background-color: #f0f2f5;
+      }
+
+      .post-menu-modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 2000;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .menu-options {
+        background: white;
+        border-radius: 8px;
+        width: 90%;
+        max-width: 300px;
+        overflow: hidden;
+      }
+
+      .menu-option {
+        padding: 16px;
+        cursor: pointer;
+        color: #050505;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: background-color 0.2s;
+        font-size: 16px;
+        justify-content: center;
+        border-bottom: 1px solid #eee;
+      }
+
+      .menu-option:last-child {
+        border-bottom: none;
+      }
+
+      .menu-option:hover {
+        background-color: #f0f2f5;
+      }
+
+      .menu-option i {
+        font-size: 18px;
+      }
+
+      .delete-post {
+        color: #dc3545;
+      }
+
+      .post-header {
+        position: relative;
+      }
+
+      .replies-toggle {
+        margin-top: 5px;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+      }
+
+      .replies-toggle i {
+        margin-right: 5px;
+      }
+
+      .nested-comments {
+        margin-left: 20px;
+        border-left: 1px solid #ddd;
+        padding-left: 10px;
+      }
+
+
+
+       /* Post View Modal Styles */
+  .post-view-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1000;
+  }
+
+  .modal-overlay {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+  }
+
+  .modal-content {
+    position: relative;
+    width: 90%;
+    max-width: 700px;
+    height: 80%;
+    background: white;
+    margin: 50px auto;
+    border-radius: 8px;
+    overflow-y: auto;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  }
+
+  .modal-header {
+    padding: 15px;
+    border-bottom: 1px solid #ddd;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .close-modal {
+    font-size: 24px;
+    cursor: pointer;
+    color: #666;
+  }
+
+  .post-content {
+    padding: 15px;
+  }
+
+
+
+  /* تنسيقات modal التعديل */
+  .edit-modal {
+    display: none; /* مخفي بشكل افتراضي */
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    z-index: 2000; /* أعلى من modal عرض المنشور */
+    width: 90%;
+    max-width: 500px;
+  }
+
+  .edit-modal-content {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .edit-modal textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    resize: vertical;
+    min-height: 150px;
+    font-size: 16px;
+    direction: rtl;
+  }
+
+  .edit-modal-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+  }
+
+  .edit-modal-buttons button {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+  }
+
+  .edit-modal-buttons .save-btn {
+    background-color: #4caf50;
+    color: white;
+  }
+
+  .edit-modal-buttons .cancel-btn {
+    background-color: #f44336;
+    color: white;
+  }
+
+/* Post Menu Styles */
+.post-menu {
+    position: relative;
+    margin-right: auto;
+    padding: 8px;
+}
+
+.menu-dots {
+    cursor: pointer;
+    color: #65676b;
+    padding: 8px;
+    border-radius: 50%;
+}
+
+.menu-dots:hover {
+    background-color: #f0f2f5;
+}
+
+.menu-options {
+    display: none;
+    position: absolute;
+    left: 0;
+    top: 100%;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    z-index: 1000;
+    min-width: 150px;
+}
+
+.menu-option {
+    padding: 8px 16px;
+    cursor: pointer;
+    color: #050505;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.menu-option:hover {
+    background-color: #f0f2f5;
+}
+
+.menu-option i {
+    font-size: 16px;
+    width: 20px;
+}
+
+.delete-post {
+    color: #dc3545;
+}
+
+
+ /* تنسيقات modal الحذف */
+ .delete-modal {
+    display: none; /* مخفي بشكل افتراضي */
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    z-index: 2000; /* أعلى من modal عرض المنشور */
+    width: 90%;
+    max-width: 500px;
+  }
+
+  .delete-modal-content {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .delete-modal-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+  }
+
+  .delete-modal-buttons button {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+  }
+
+  .delete-modal-buttons .confirm-delete {
+    background-color: #dc3545;
+    color: white;
+  }
+
+  .delete-modal-buttons .cancel-delete {
+    background-color: #f0f2f5;
+    color: #050505;
+  }
+
+  .modal-content{  
+    position: relative;
+    width: 100% !important;
+    max-width: 700px;
+    height: 100%;
+    background: white;
+    margin: 0px auto;
+    border-radius: 0px !important;
+    overflow-y: auto;
+    top: 0;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+
+
+  }
+
+
+
+    /* تصميم زر الإشعارات */
+    #notification-btn {
+            background-color: #0078ff;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        /* تصميم العداد */
+        #notification-count {
+            background-color: red;
+            color: white;
+            border-radius: 50%;
+            padding: 2px 6px;
+            font-size: 12px;
+            margin-left: 5px;
+        }
+
+        /* تصميم قائمة الإشعارات */
+        #notification-list {
+            display: none;
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 100%;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 10px;
+            width: 87%;
+            height: 100%;
+            overflow-y: auto;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .no-notifications{
+          text-align: center;
+        }
+
+        /* تصميم عنصر الإشعار */
+        .notification-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .notification-item img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        .notification-item div {
+            flex: 1;
+        }
+
+        .notification-item strong {
+            font-size: 14px;
+        }
+
+        .notification-item p {
+            font-size: 12px;
+            margin: 5px 0;
+        }
+
+        .notification-item small {
+            font-size: 10px;
+            color: #666;
+        }
+  
+
+ /* تنسيق زر الشات */
+ /* .chat-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        } */
+
+        /* تنسيق نافذة الشات */
+        .chat-window {
+          position: fixed;
+    right: 0;
+    left: 0;
+    height: 100%;
+    bottom: 0;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    overflow-y: auto;
+    z-index: 1000;
+    display: none;
+        }
+
+        .chat-window .chat-header {
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
+        }
+
+        .chat-window .chat-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+            cursor: pointer;
+        }
+
+        .chat-window .chat-item img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        .chat-window .chat-item:hover {
+            background-color: #f1f1f1;
+        }
+
+        .no-chats {
+            padding: 10px;
+            text-align: center;
+            color: #666;
+        }
+
+        .close-main-chat{
+          position: absolute;
+          right: 5px;
+        }
+
+
+
+/* الأسلوب العام للموديل */
+.modal-search {
+    display: none; /* الموديل مخفي بشكل افتراضي */
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.4);
+}
+
+/* محتوى الموديل */
+.modal-search-content {
+    background-color: #fefefe;
+    margin: 15% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    max-width: 500px;
+}
+
+/* زر إغلاق الموديل */
+.close-search-modal {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close-search-modal:hover,
+.close-search-modal:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+/* تنسيق نتائج البحث */
+.search-results {
+    margin-top: 10px;
+}
+
+.search-result {
+    padding: 8px;
+    margin: 5px;
+    cursor: pointer;
+}
+
+.search-result:hover {
+    background-color: #f0f0f0;
+}
+
+.profile-img {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+.search-btn {
+    padding: 8px 12px;
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+.search-btn:hover {
+    background-color: #0056b3;
+}
+
+.search-input {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+/* النمط الأساسي لـ profile-container */
+#profile-container {
+    display: none; /* مخفي في البداية */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* خلفية شفافة */
+    z-index: 1000;
+}
+
+/* محتوى iframe */
+#profile-iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+/* رأس الحاوية مع زر الإغلاق */
+#profile-header {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: fit-content;
+    background-color: #f1f1f1;
+    padding: 10px;
+    box-sizing: border-box;
+    z-index: 1001;
+}
+
+#close-profile-btn {
+    background-color: transparent;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    float: left;
+}
+
+/* الأنيميشن */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideIn {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+}
+
+@keyframes fadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+
+@keyframes slideOut {
+    from { transform: translateY(0); }
+    to { transform: translateY(100%); }
+}
+
+#profile-container.show {
+    display: block;
+    animation: fadeIn 0.5s, slideIn 0.5s;
+}
+
+#profile-container.hide {
+    animation: fadeOut 0.5s, slideOut 0.5s;
+}
+
+
+
+
+
+/* النمط الأساسي لـ public-profile-container */
+#public-profile-container {
+    display: none; /* مخفي في البداية */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* خلفية شفافة */
+    z-index: 1000;
+}
+
+/* محتوى iframe */
+#public-profile-iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+/* رأس الحاوية مع زر الإغلاق */
+#public-profile-header {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: fit-content;
+    background-color: #f1f1f1;
+    padding: 10px;
+    box-sizing: border-box;
+    z-index: 1001;
+}
+
+#close-public-profile-btn {
+    background-color: transparent;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    float: left;
+}
+
+/* الأنيميشن */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideIn {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+}
+
+@keyframes fadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+
+@keyframes slideOut {
+    from { transform: translateY(0); }
+    to { transform: translateY(100%); }
+}
+
+#public-profile-container.show {
+    display: block;
+    animation: fadeIn 0.5s, slideIn 0.5s;
+}
+
+#public-profile-container.hide {
+    animation: fadeOut 0.5s, slideOut 0.5s;
+}
+
+
+
+       /* الأنيميشن فتح المقالات*/
+       @keyframes articalFadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes articalSlideIn {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+
+        @keyframes articalFadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+
+        @keyframes articalSlideOut {
+            from { transform: translateY(0); }
+            to { transform: translateY(100%); }
+        }
+
+        /* إعدادات iframe */
+        #artical-iframe-container {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: white;
+            box-shadow: 0 -5px 10px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+        }
+
+        #artical-iframe-container.show {
+            display: block;
+            animation: articalFadeIn 0.5s, articalSlideIn 0.5s;
+        }
+
+        #artical-iframe-container.hide {
+            animation: articalFadeOut 0.5s, articalSlideOut 0.5s;
+        }
+
+        /* iframe */
+        #artical-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        /* زر الإغلاق */
+        #artical-close-btn {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: red;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+
+    </style>
+
+    <script>
+      // Comments Functionality
+    // Comments Functionality
+$(document).ready(function () {
+  const commentsContainer = $("#commentsFixedContainer");
+  const commentsOverlay = $("#commentsOverlay");
+  const closeComments = $(".close-comments");
+  let currentPostId = null;
+
+  // Reply Modal Elements
+  const replyContainer = $("#replyFixedContainer");
+  const replyOverlay = $("#replyOverlay");
+  const closeReply = $(".close-reply");
+  let currentCommentId = null;
+
+  // تحميل التعليقات عند النقر على زر التعليق
+  $(".comment-btn").click(function () {
+    const postId = $(this).data("post-id");
+    currentPostId = postId;
+
+    // تحميل التعليقات
+    loadComments(postId);
+
+    // عرض الخلفية والحاوية
+    commentsOverlay.css("display", "block");
+    commentsContainer.css("display", "block");
+    document.body.style.overflow = "hidden"; // منع السكرول في الصفحة الرئيسية
+    setTimeout(() => {
+      commentsContainer.addClass("active");
+    }, 10);
+  });
+
+  // إغلاق التعليقات عند النقر خارج الحاوية
+  commentsOverlay.click(function () {
+    closeCommentsContainer();
+  });
+
+  // إغلاق حاوية التعليقات
+  closeComments.click(function () {
+    closeCommentsContainer();
+  });
+
+  // دالة إغلاق حاوية التعليقات
+  function closeCommentsContainer() {
+    commentsContainer.removeClass("active");
+    document.body.style.overflow = "auto"; // إعادة تفعيل السكرول في الصفحة الرئيسية
+    setTimeout(() => {
+      commentsContainer.css("display", "none");
+      commentsOverlay.css("display", "none");
+    }, 300);
+  }
+
+  // إرسال التعليق
+  $(".send-comment-btn").click(function () {
+    const input = commentsContainer.find(".comment-input");
+    const content = input.val().trim();
+
+    if (content && currentPostId) {
+      $.ajax({
+        url: "/add_comment",
+        method: "POST",
+        data: {
+          post_id: currentPostId,
+          content: content,
+          parent_id: null, // Root comment
+        },
+        success: function (response) {
+          if (response.success) {
+            input.val("");
+            loadComments(currentPostId);
+          }
+        },
+      });
+    }
+  });
+
+  // تحميل التعليقات
+  function loadComments(postId) {
+    $.get(`/get_comments/${postId}`, function (comments) {
+      const commentsList = commentsContainer.find(".comments-list");
+      commentsList.empty();
+
+      comments.forEach(function (comment) {
+        const commentHtml = generateCommentHtml(comment);
+        commentsList.append(commentHtml);
+      });
+    });
+  }
+
+  // دالة لتوليد HTML للتعليقات والردود
+  function generateCommentHtml(comment) {
+    const hasReplies = comment.replies && comment.replies.length > 0;
+    const repliesCount = hasReplies
+      ? `${comment.replies.length} رداً`
+      : "";
+
+    const repliesHtml = hasReplies
+      ? comment.replies
+          .map((reply) => generateReplyHtml(reply))
+          .join("")
+      : "";
+
+    return `
+      <div class="comment-item">
+          <div class="comment-user-avatar">
+              <img src="/static/${
+                comment.profile_photo
+              }" alt="${comment.username}">
+          </div>
+          <div class="comment-bubble">
+              <div class="comment-header">
+                  <span class="comment-username">${comment.username}</span>
+              </div>
+              <div class="comment-content">${comment.content}</div>
+              <div class="comment-time">${comment.created_at}</div>
+
+              <!-- عرض زر الردود المخفية إذا كان هناك ردود -->
+              ${
+                hasReplies
+                  ? `
+                  <div class="replies-toggle" data-comment-id="${comment.id}">
+                      <span class="replies-toggle-text" style="color: blue; cursor: pointer;">
+                          <i class="fas fa-chevron-down"></i> ${repliesCount}
+                      </span>
+                  </div>
+              `
+                  : ""
+              }
+
+              <!-- زر الرد -->
+              <button class="reply-btn" data-comment-id="${
+                comment.id
+              }" style="color: blue; cursor: pointer;">رد</button>
+
+              <!-- عرض الردود أسفل التعليق الرئيسي -->
+              <div class="replies-container" style="display: ${
+                hasReplies ? "none" : "none"
+              };">
+                  ${repliesHtml}
+              </div>
+          </div>
+      </div>
+  `;
+  }
+
+  // دالة لتوليد HTML للردود
+  function generateReplyHtml(reply) {
+    return `
+      <div class="comment-item nested-comment" style="    border-bottom: 1px solid;">
+          <div class="comment-user-avatar">
+              <img src="/static/${
+                reply.profile_photo
+              }" alt="${reply.username}">
+          </div>
+          <div class="comment-bubble">
+              <div class="comment-header">
+                  <span class="comment-username">${reply.username}</span>
+              </div>
+              <div class="comment-content">${reply.content}</div>
+              <div class="comment-time">${reply.created_at}</div>
+          </div>
+      </div>
+    `;
+  }
+
+  // إظهار حقل الرد عند النقر على زر الرد
+  $(document).on("click", ".reply-btn", function () {
+    currentCommentId = $(this).data("comment-id");
+    replyOverlay.css("display", "block");
+    replyContainer.css("display", "block");
+    setTimeout(() => {
+      replyContainer.addClass("active");
+    }, 10);
+  });
+
+  // إغلاق الرد عند النقر خارج الحاوية
+  replyOverlay.click(function () {
+    closeReplyContainer();
+  });
+
+  // إغلاق حاوية الرد
+  closeReply.click(function () {
+    closeReplyContainer();
+  });
+
+  // دالة إغلاق حاوية الرد
+  function closeReplyContainer() {
+    replyContainer.removeClass("active");
+    setTimeout(() => {
+      replyContainer.css("display", "none");
+      replyOverlay.css("display", "none");
+    }, 300);
+  }
+
+  // إرسال الرد على تعليق
+  $(".send-reply-btn").click(function () {
+    const input = replyContainer.find(".reply-input");
+    const content = input.val().trim();
+
+    if (content && currentPostId && currentCommentId) {
+      $.ajax({
+        url: "/add_comment",
+        method: "POST",
+        data: {
+          post_id: currentPostId,
+          content: content,
+          parent_id: currentCommentId, // Associate reply with parent
+        },
+        success: function (response) {
+          if (response.success) {
+            input.val("");
+            closeReplyContainer();
+            loadComments(currentPostId);
+          }
+        },
+      });
+    }
+  });
+
+  // إظهار أو إخفاء الردود عند النقر على زر "12 رداً" أو ما يعادله
+  $(document).on("click", ".replies-toggle-text", function () {
+    const toggle = $(this).closest(".replies-toggle");
+    const repliesContainer = toggle.siblings(".replies-container");
+    const icon = toggle.find("i");
+
+    if (repliesContainer.is(":visible")) {
+      repliesContainer.slideUp();
+      icon.removeClass("fa-chevron-up").addClass("fa-chevron-down");
+    } else {
+      repliesContainer.slideDown();
+      icon.removeClass("fa-chevron-down").addClass("fa-chevron-up");
+    }
+  });
+});
+
+
+      // تفعيل زر إظهار المزيد
+      document.addEventListener("DOMContentLoaded", function () {
+  // تحديد النصوص الطويلة وإضافة زر إظهار المزيد
+  document.querySelectorAll(".post-text").forEach(function ($text) {
+    const $btn = $text.nextElementSibling;
+
+    // التحقق من وجود العنصر التالي (زر إظهار المزيد)
+    if ($btn && $btn.classList.contains("see-more-btn")) {
+      // إضافة collapsed class مبدئياً
+      $text.classList.add("collapsed");
+
+      // حساب ارتفاع النص الكامل والنص المقتطع
+      const originalHeight = $text.scrollHeight;
+      const lineHeight = parseFloat(
+        window.getComputedStyle($text).lineHeight
+      );
+      const maxHeight = lineHeight * 4; // ارتفاع 4 أسطر
+
+      // إظهار الزر فقط إذا كان النص أطول من 4 أسطر
+      if (originalHeight > maxHeight) {
+        $btn.style.display = "block";
+        $btn.textContent = "إظهار المزيد";
+      } else {
+        $btn.style.display = "none";
+        $text.classList.remove("collapsed");
+      }
+    }
+  });
+
+        // تفعيل زر إظهار المزيد/أقل
+        document.querySelectorAll(".see-more-btn").forEach(function ($btn) {
+          $btn.addEventListener("click", function () {
+            const $text = this.previousElementSibling;
+
+            if ($text.classList.contains("collapsed")) {
+              $text.classList.remove("collapsed");
+              $text.classList.add("expanded");
+              this.textContent = "إظهار أقل";
+            } else {
+              $text.classList.remove("expanded");
+              $text.classList.add("collapsed");
+              this.textContent = "إظهار المزيد";
+            }
+          });
+        });
+
+        // تفعيل قائمة النقاط الثلاث للمنشورات
+        document.querySelectorAll(".menu-dots").forEach(function ($dots) {
+          $dots.addEventListener("click", function (e) {
+            e.stopPropagation();
+            const $menu = this.nextElementSibling;
+            $(".menu-options").not($menu).hide();
+            $menu.style.display =
+              $menu.style.display === "block" ? "none" : "block";
+          });
+        });
+
+        // إغلاق قوائم المنشورات عند النقر في أي مكان آخر
+        document.addEventListener("click", function () {
+          document.querySelectorAll(".menu-options").forEach(function ($menu) {
+            $menu.style.display = "none";
+          });
+        });
+
+        // منع إغلاق القائمة عند النقر داخلها
+        document.querySelectorAll(".menu-options").forEach(function ($menu) {
+          $menu.addEventListener("click", function (e) {
+            e.stopPropagation();
+          });
+        });
+
+       
+
+   
+
+
+// دالة لإغلاق modal
+  function closePostModal() {
+    const postModal = document.getElementById("postViewModal");
+  console.log("hi")
+    // إغلاق modal
+    postModal.style.display = "none";
+    document.body.style.overflow = "auto"; // إعادة تمكين التمرير
+  }
+
+  // إضافة أحداث لإغلاق modal
+  document.querySelector(".close-modal").addEventListener("click", closePostModal);
+  document.querySelector(".modal-overlay").addEventListener("click", closePostModal);
+
+
+
+
+
+
+
+
+   // تفعيل زر تعديل المنشور
+        document.querySelectorAll(".edit-post").forEach(function ($editBtn) {
+          $editBtn.addEventListener("click", function () {
+            const postId = this.dataset.postId;
+            const $postCard = this.closest(".post-card");
+            const $postText = postCard.querySelector(".post-text");
+            const currentContent = $postText.textContent.trim();
+
+            // إنشاء مربع حوار للتعديل
+            const newContent = prompt("تعديل المنشور:", currentContent);
+
+            if (newContent !== null && newContent !== currentContent) {
+              // إرسال طلب التعديل
+              fetch("/edit_post_content", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/x-www-form-urlencoded",
+                },
+                body: `post_id=${postId}&new_content=${encodeURIComponent(
+                  newContent
+                )}`,
+              })
+                .then((response) => response.json())
+                .then((data) => {
+                  if (data.success) {
+                    location.reload();
+                  }
+                });
+            }
+          });
+        });
+
+ // تفعيل زر حذف المنشور
+document
+  .querySelectorAll(".delete-post")
+  .forEach(function ($deleteBtn) {
+    $deleteBtn.addEventListener("click", function () {
+      const postId = this.dataset.postId;
+
+      // عرض الموديل بدلاً من confirm
+      const deleteModal = document.getElementById("deleteModal");
+      deleteModal.style.display = "block"; // عرض الموديل
+
+      // حدث عند الضغط على زر الحذف
+      const confirmDeleteBtn = document.getElementById("confirmDeleteBtn");
+      confirmDeleteBtn.onclick = function () {
+        fetch("/delete_post", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+          body: `post_id=${postId}`,
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.success) {
+              location.reload(); // إعادة تحميل الصفحة بعد الحذف
+            }
+          });
+        deleteModal.style.display = "none"; // إغلاق الموديل بعد الحذف
+      };
+
+      // حدث عند الضغط على زر الإلغاء
+      const cancelDeleteBtn = document.getElementById("cancelDeleteBtn");
+      cancelDeleteBtn.onclick = function () {
+        deleteModal.style.display = "none"; // إغلاق الموديل دون حذف
+      };
+    });
+  });
+
+      });
+
+  // تفعيل زر تعديل المنشور في modal
+document.addEventListener("DOMContentLoaded", function () {
+  const editPostBtn = document.querySelector("#postViewModal .edit-post");
+
+  if (editPostBtn) {
+    editPostBtn.addEventListener("click", function () {
+      const postId = this.dataset.postId;
+      const postText = document.querySelector("#postViewModal .post-text");
+      const editModal = document.getElementById("editModal");
+      const editContentInput = document.getElementById("editContentInput");
+
+      editModal.style.display = "block";
+      editContentInput.value = postText.textContent.trim();
+
+      // إضافة أحداث لإغلاق modal
+      const cancelEditBtn = document.getElementById("cancelEditBtn");
+      cancelEditBtn.addEventListener("click", function () {
+        editModal.style.display = "none";
+      });
+
+      // إضافة أحداث لحفظ التغييرات
+      const saveEditBtn = document.getElementById("saveEditBtn");
+      saveEditBtn.addEventListener("click", function () {
+        const newContent = editContentInput.value.trim();
+
+        if (newContent !== postText.textContent.trim()) {
+          fetch("/edit_post_content", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/x-www-form-urlencoded",
+            },
+            body: `post_id=${postId}&new_content=${encodeURIComponent(newContent)}`,
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              if (data.success) {
+                location.reload();
+              }
+            });
+        }
+
+        editModal.style.display = "none";
+      });
+    });
+  }
+});
+
+// إضافة حدث لإغلاق الموديل عند الضغط على الزر الذي يحمل الكلاس 'close-modal'
+document.querySelectorAll(".close-modal").forEach(function ($closeBtn) {
+  $closeBtn.addEventListener("click", function () {
+    // إخفاء الموديل عن طريق تعيين display: none
+    const postViewModal = document.getElementById("postViewModal");
+    postViewModal.style.display = "none";
+
+    // إزالة جزء الرابط الحالي (مثل post/6) دون إعادة تحميل الصفحة
+    const currentUrl = window.location.href; // الحصول على الرابط الحالي
+    const baseUrl = currentUrl.split("/post/")[0]; // إزالة جزء post/6 من الرابط
+    history.pushState(null, "", baseUrl); // تحديث الرابط في شريط العنوان
+  });
+});
+
+
+
+document.addEventListener("DOMContentLoaded", function () {
+  document.querySelectorAll(".share-btn").forEach(function (button) {
+    button.addEventListener("click", function () {
+      const postId = this.dataset.postId;
+      const shareUrl = `${window.location.origin}/post/${postId}`;
+
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(shareUrl).then(function () {
+          showPopup("تم نسخ الرابط");
+        }).catch(function (err) {
+          console.error("فشل نسخ الرابط: ", err);
+        });
+      } else {
+        const tempInput = document.createElement("input");
+        tempInput.value = shareUrl;
+        document.body.appendChild(tempInput);
+        tempInput.select();
+        try {
+          document.execCommand("copy");
+          showPopup("تم نسخ الرابط ");
+        } catch (err) {
+          console.error("فشل نسخ الرابط باستخدام الطريقة البديلة: ", err);
+        }
+        document.body.removeChild(tempInput);
+      }
+
+      function showPopup(message) {
+        const modal = document.createElement("div");
+        modal.style.position = "fixed";
+        modal.style.bottom = "20%";
+        modal.style.left = "50%";
+        modal.style.transform = "translateX(-50%)";
+        modal.style.backgroundColor = "#333";
+        modal.style.color = "#fff";
+        modal.style.padding = "15px 20px";
+        modal.style.borderRadius = "8px";
+        modal.style.boxShadow = "0 4px 6px rgba(0, 0, 0, 0.1)";
+        modal.style.opacity = "0";
+        modal.style.transition = "opacity 0.4s ease, bottom 0.4s ease";
+        modal.style.zIndex = "1000";
+        modal.textContent = message;
+
+        document.body.appendChild(modal);
+
+        setTimeout(() => {
+          modal.style.opacity = "1";
+          modal.style.bottom = "25%";
+        }, 10);
+
+        setTimeout(() => {
+          modal.style.opacity = "0";
+          modal.style.bottom = "20%";
+          setTimeout(() => {
+            modal.remove();
+          }, 400);
+        }, 3000);
+      }
+    });
+  });
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+    const notificationBtn = document.getElementById('notification-btn');
+    const notificationCount = document.getElementById('notification-count');
+    const notificationList = document.getElementById('notification-list');
+
+    let eventSource; // تعريف متغير EventSource خارج الوظيفة
+
+    // تحميل عدد الرسائل غير المقروءة
+    function loadUnreadCount() {
+        fetch('/get_unread_count')
+            .then(response => response.json())
+            .then(data => {
+                notificationCount.textContent = data.unread_count; // تحديث العداد
+            })
+            .catch(error => console.error('Error loading unread count:', error));
+    }
+// تحميل الإشعارات
+function loadNotifications() {
+    fetch('/get_notifications')
+        .then(response => response.json())
+        .then(notifications => {
+            notificationList.innerHTML = ''; // تفريغ القائمة القديمة
+
+            // فلترة الإشعارات غير المقروءة فقط
+            const unreadNotifications = notifications.filter(notification =>
+                (notification.is_received && !notification.watched_by_receiver) ||
+                (!notification.is_received && !notification.watched_by_sender)
+            );
+
+            // إذا كانت القائمة فارغة
+            if (unreadNotifications.length === 0) {
+                notificationList.innerHTML = '<div class="no-notifications">لا توجد إشعارات جديدة</div>';
+            } else {
+                unreadNotifications.forEach(notification => {
+                    const item = document.createElement('div');
+                    item.className = 'notification-item';
+                    item.dataset.messageId = notification.id;
+
+                    const user = notification.is_received ? notification.sender_name : notification.receiver_name;
+                    const userPhoto = notification.is_received ? notification.sender_photo : notification.receiver_photo;
+                    const userEmail = notification.is_received ? notification.sender_email : notification.receiver_email;
+
+                    // تحديد المحتوى مع الإيموجي حسب نوع الملف
+                    let contentPreview = '';
+                    if (notification.file_type === 'image') {
+                        contentPreview = '🖼️ صورة';
+                    } else if (notification.file_type === 'video') {
+                        contentPreview = '🎥 فيديو';
+                    } else {
+                        contentPreview = notification.content; // النص العادي
+                    }
+
+                    item.innerHTML = `
+                        <img src="${userPhoto}" alt="${user}" class="sender-photo" data-user-email="${userEmail}">
+                        <div>
+                            <strong>${user}</strong>
+                            <p>${contentPreview}</p>
+                            <small>${notification.created_at}</small>
+                        </div>
+                    `;
+
+                    notificationList.appendChild(item);
+                });
+            }
+
+            // إضافة حدث النقر على الصور
+            document.querySelectorAll('.sender-photo').forEach(img => {
+                img.addEventListener('click', function (event) {
+                    event.stopPropagation(); // منع انتشار الحدث إلى العنصر الأب
+                    const userEmail = this.dataset.userEmail; // الحصول على البريد الإلكتروني للمستخدم
+
+                    if (userEmail) {
+                        // فتح الرابط داخل iframe
+                        const chatFrame = document.querySelector('#chatFrame');
+                        if (chatFrame) {
+                            chatFrame.src = `/messages/${userEmail}`; // تحميل الصفحة داخل iframe
+                            chatFrame.style.display = 'block'; // إظهار iframe
+                            const closeChatFrameButton = document.querySelector('#closeChatFrame');
+                            if (closeChatFrameButton) {
+                                closeChatFrameButton.style.display = 'block'; // إظهار زر الإغلاق
+                            }
+                            document.body.style.overflow = 'hidden'; // منع التمرير في الصفحة الرئيسية
+
+                            // تفعيل دالة join_chat
+                            fetch('/join_chat', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify({}),
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.success) {
+                                    console.log('User joined the chat successfully');
+                                } else {
+                                    console.error('Failed to join the chat');
+                                }
+                            })
+                            .catch(error => console.error('Error joining chat:', error));
+                        } else {
+                            console.error('iframe not found');
+                        }
+                    } else {
+                        console.error('User email is undefined');
+                    }
+                });
+            });
+        })
+        .catch(error => console.error('Error loading notifications:', error));
+}
+
+// تحديث جميع الرسائل غير المقروءة إلى "مقروءة"
+function markAllAsRead() {
+    fetch('/mark_all_as_read', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            loadNotifications(); // إعادة تحميل الإشعارات بعد التحديث
+            loadUnreadCount(); // تحديث عدد الرسائل غير المقروءة
+        }
+    })
+    .catch(error => console.error('Error marking all as read:', error));
+}
+
+// عرض/إخفاء قائمة الإشعارات
+notificationBtn.addEventListener('click', function () {
+    // التحقق من حالة عرض القائمة
+    if (notificationList.style.display === 'none' || notificationList.style.display === '') {
+        notificationList.style.display = 'block'; // عرض قائمة الإشعارات
+
+        // تحميل الإشعارات عند الضغط الأول
+        loadNotifications(); // تحميل الإشعارات
+        markAllAsRead(); // تحديث جميع الرسائل غير المقروءة إلى "مقروءة"
+    } else {
+        notificationList.style.display = 'none'; // إخفاء قائمة الإشعارات
+    }
+});
+
+// عند النقر على إشعار
+notificationList.addEventListener('click', function (event) {
+    const notificationItem = event.target.closest('.notification-item');
+    if (notificationItem) {
+        const messageId = notificationItem.dataset.messageId;
+
+        // تحديث حالة الرسالة إلى "مقروءة"
+        fetch(`/mark_as_read/${messageId}`)
+            .then(() => {
+                // إعادة تحميل الإشعارات بعد تحديث حالة الرسالة
+                loadNotifications();
+                loadUnreadCount(); // تحديث عدد الرسائل غير المقروءة
+            })
+            .catch(error => console.error('Error marking message as read:', error));
+    }
+});
+
+
+    // الاستماع إلى التحديثات الفورية لعدد الرسائل غير المقروءة
+    eventSource = new EventSource('/stream_unread_count');
+    eventSource.onmessage = function (event) {
+        // التحقق مما إذا كان المستخدم الحالي في صفحة messages.html
+        const isInChatPage = window.location.pathname.startsWith('/messages/');
+
+        // تحديث العداد فقط إذا لم يكن في صفحة messages.html
+        if (!isInChatPage) {
+            const data = JSON.parse(event.data);
+            notificationCount.textContent = data.unread_count; // تحديث العداد
+        }
+    };
+
+    // إغلاق EventSource عند مغادرة المستخدم للصفحة
+    window.addEventListener('beforeunload', function () {
+        if (eventSource) {
+            eventSource.close();
+        }
+    });
+
+    // تحميل عدد الرسائل غير المقروءة عند فتح الصفحة
+    loadUnreadCount();
+});
+
+
+// تحديد عناصر DOM
+const chatButton = document.querySelector('.chat-button');
+const chatWindow = document.querySelector('#chatWindow');
+let closeManiChat = document.querySelector(".close-main-chat")
+
+const chatList = document.querySelector('#chatList');
+const chatFrame = document.querySelector('#chatFrame'); // الإشارة إلى iframe
+const closeChatFrameButton = document.querySelector('#closeChatFrame'); // الزر لإغلاق الـ iframe
+
+// إظهار/إخفاء نافذة الشات عند الضغط على الزر
+chatButton.addEventListener('click', () => {
+
+    chatWindow.style.display = chatWindow.style.display === 'none' || chatWindow.style.display === '' ? 'block' : 'none';
+    if (chatWindow.style.display === 'block') {
+        loadChatList(); // تحميل قائمة الشات عند الفتح
+    }
+});
+function loadChatList() {
+    fetch('/getchat') // الاتصال بـ API الذي أنشأناه
+        .then(response => response.json())
+        .then(chats => {
+            console.log(chats);
+            chatList.innerHTML = ''; // تفريغ القائمة القديمة
+
+            if (chats.length === 0) {
+                chatList.innerHTML = '<div class="no-chats">لا توجد محادثات</div>';
+                return;
+            }
+
+            // إضافة العناصر إلى القائمة
+            chats.forEach(chat => {
+                const chatItem = document.createElement('div');
+                chatItem.className = 'chat-item';
+                chatItem.dataset.userEmail = chat.user_email;
+
+                // تحديد نص الرسالة بناءً على المحتوى
+                let lastMessageHtml = '';
+                let messagePrefix = chat.is_sender ? 'انت :' : ``;
+
+                if (chat.message_type === 'text') {
+                    lastMessageHtml = `<p>${messagePrefix} ${chat.last_message}</p>`;  // عرض النص
+                }
+                else if (chat.message_type === 'image') {
+                    lastMessageHtml = `<span class="emoji-image">🖼️</span>`;  // إيموجي صورة
+                }
+                else if (chat.message_type === 'video') {
+                    lastMessageHtml = `<span class="emoji-video">📹</span>`;  // إيموجي فيديو
+                }
+                else if (chat.message_type === 'audio') {
+                    lastMessageHtml = `<span class="emoji-audio">🎵</span>`;  // إيموجي صوت
+                }
+
+                // إضافة عدد الرسائل غير المقروءة إذا كان أكبر من 0
+                let unreadCountHtml = '';
+                if (chat.unread_count >= 2) {
+                    unreadCountHtml = `<span class="unread-count">${chat.unread_count}</span>`;
+                }
+
+                chatItem.innerHTML = `
+                    <img src="${chat.user_photo}" alt="${chat.user_name}">
+                    <div>
+                        <strong>${chat.user_name}</strong>
+                        <div>${lastMessageHtml}</div>  <!-- عرض المحتوى داخل div -->
+                        <small>${chat.last_updated}</small>
+                    </div>
+                    ${unreadCountHtml}  <!-- عرض عدد الرسائل غير المقروءة إذا كان أكبر من أو يساوي 2 -->
+                `;
+
+                // حدث النقر لفتح نافذة الشات داخل iframe
+                chatItem.addEventListener('click', () => {
+                    // تغيير مصدر iframe إلى صفحة الرسائل الخاصة بالمستخدم
+                    chatFrame.src = `/messages/${chatItem.dataset.userEmail}`;
+                    chatFrame.style.display = 'block'; // عرض الـ iframe
+                    chatWindow.style.display = 'none'; // إخفاء نافذة الشات
+                    const closeChatFrameButton = document.querySelector('#closeChatFrame');
+                    closeChatFrameButton.style.display = 'block'; // إظهار زر الإغلاق
+                    document.body.style.overflow = 'hidden'; // منع التمرير في الصفحة الرئيسية
+                });
+
+                chatList.appendChild(chatItem);
+            });
+        })
+        .catch(error => console.error('Error loading chat list:', error));
+}
+
+
+document.addEventListener('DOMContentLoaded', () => {
+    // الآن يمكن إضافة listeners بعد تحميل جميع العناصر
+    const closeChatFrameButton = document.querySelector('#closeChatFrame');
+    const chatFrame = document.querySelector('#chatFrame'); // الحصول على iframe
+
+    if (closeChatFrameButton && chatFrame) {
+        closeChatFrameButton.addEventListener('click', () => {
+            chatFrame.style.display = 'none'; // إخفاء الـ iframe
+            chatFrame.src = ''; // إزالة src من iframe
+            closeChatFrameButton.style.display = 'none'; // إخفاء زر الإغلاق
+            chatWindow.style.display = 'block'; // إعادة عرض نافذة الشات
+            document.body.style.overflow = 'auto'; // إعادة التمرير في الصفحة الرئيسية
+            loadChatList()
+            // تفعيل دالة leave_chat
+            fetch('/leave_chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({}),
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    console.log('User left the chat successfully');
+                } else {
+                    console.error('Failed to leave the chat');
+                }
+            })
+            .catch(error => console.error('Error leaving chat:', error));
+        });
+    }
+});
+
+
+
+    closeManiChat.addEventListener("click" , () =>{
+      chatWindow.style.display = 'none'; // إخفاء الـ iframe
+    })
+
+
+
+
+    // فتح الموديل عند الضغط على زر البحث
+const openModalBtn = document.getElementById('openSearchModalBtn');
+const closeModalBtn = document.getElementById('closeSearchModalBtn');
+const searchModal = document.getElementById('searchModal');
+
+// عند الضغط على زر "بحث عن مستخدم"، يتم فتح الموديل
+openModalBtn.onclick = function() {
+    searchModal.style.display = 'block';
+}
+
+// عند الضغط على "×" يتم إغلاق الموديل
+closeModalBtn.onclick = function() {
+    searchModal.style.display = 'none';
+}
+
+
+// وظيفة البحث التلقائي
+function searchUsers() {
+    const searchQuery = document.getElementById('searchInput').value;
+    if (searchQuery.length > 0) {
+        // إرسال استعلام AJAX إلى السيرفر
+        fetch(`/search_users?q=${searchQuery}`)
+            .then(response => response.json())
+            .then(data => {
+                // عرض النتائج
+                const resultsContainer = document.getElementById('searchResults');
+                resultsContainer.innerHTML = ''; // مسح النتائج القديمة
+                if (data.length > 0) {
+                    data.forEach(user => {
+                        const userDiv = document.createElement('div');
+                        userDiv.classList.add('search-result');
+                        userDiv.innerHTML = `
+                            <img src="static/${user.profile_photo}" alt="Profile Image" class="profile-img" />
+                            <span>${user.username}</span>
+                        `;
+                        // إزالة المسافات من اسم المستخدم
+                        const userEmail = user.username.replace(/\s+/g, '') + "@moltka.eg"; // إزالة المسافات
+
+                        // إضافة مستمع حدث على العنصر بأكمله لفتح الملف الشخصي داخل الـ iframe
+                        userDiv.addEventListener('click', function(event) {
+                            event.preventDefault(); // منع الانتقال إلى الصفحة الجديدة
+                            openPublicProfile(`/profile/${userEmail}`); // فتح الملف الشخصي داخل الـ iframe
+                        });
+
+                        resultsContainer.appendChild(userDiv);
+                    });
+                } else {
+                    resultsContainer.innerHTML = '<span>لا توجد نتائج</span>';
+                }
+            });
+    } else {
+        document.getElementById('searchResults').innerHTML = '';
+    }
+}
+
+// دالة لفتح الملف الشخصي داخل iframe
+function openProfile() {
+    var container = document.getElementById('profile-container');
+    var iframe = document.getElementById('profile-iframe');
+
+    if (container && iframe) {
+        // إظهار الحاوية
+        container.style.display = 'block';
+        container.classList.remove('hide'); // إزالة فئة الإخفاء
+        container.classList.add('show'); // إضافة فئة العرض
+
+        // تحميل صفحة الملف الشخصي داخل الـ iframe
+        iframe.src = "{{ url_for('profile') }}";
+
+        // منع التمرير في الصفحة الرئيسية
+        document.body.style.overflow = 'hidden';
+    }
+}
+
+// دالة لإغلاق الملف الشخصي
+function closeProfile() {
+    var container = document.getElementById('profile-container');
+    if (container) {
+        // إضافة كلاس hide لتشغيل أنيميشن الإغلاق
+        container.classList.remove('show'); // إزالة فئة العرض
+        container.classList.add('hide'); // إضافة فئة الإخفاء
+
+        // الانتظار حتى يكتمل الأنيميشن قبل إخفاء العنصر
+        setTimeout(function() {
+            container.style.display = 'none';
+
+            // إعادة التمرير في الصفحة الرئيسية
+            document.body.style.overflow = 'auto';
+        }, 300); // الانتظار لمدة 0.5 ثانية (مدة الأنيميشن)
+    }
+}
+
+// إضافة مستمع الحدث لزر الإغلاق
+var closeBtn = document.getElementById("close-profile-btn");
+if (closeBtn) {
+    closeBtn.addEventListener("click", function () {
+        console.log("تم النقر على زر الإغلاق");
+        closeProfile(); // استدعاء دالة الإغلاق
+    });
+}
+
+// إضافة مستمع حدث لرابط الملف الشخصي
+var profileLink = document.getElementById("profile-link");
+if (profileLink) {
+    profileLink.addEventListener('click', function(event) {
+        event.preventDefault(); // منع الانتقال إلى الصفحة الجديدة
+        openProfile(); // فتح الملف الشخصي داخل الـ iframe
+    });
+}
+
+
+// دالة لفتح الملف الشخصي العام داخل iframe
+function openPublicProfile(url) {
+    var container = document.getElementById('public-profile-container');
+    var iframe = document.getElementById('public-profile-iframe');
+
+    if (container && iframe) {
+        // إظهار الحاوية
+        container.style.display = 'block';
+        container.classList.remove('hide'); // إزالة فئة الإخفاء
+        container.classList.add('show'); // إضافة فئة العرض
+
+        // تحميل صفحة الملف الشخصي العام داخل الـ iframe
+        iframe.src = url;
+
+        // منع التمرير في الصفحة الرئيسية
+        document.body.style.overflow = 'hidden';
+    }
+}
+
+// دالة لإغلاق الملف الشخصي العام
+function closePublicProfile() {
+    var container = document.getElementById('public-profile-container');
+    if (container) {
+        // إضافة كلاس hide لتشغيل أنيميشن الإغلاق
+        container.classList.remove('show'); // إزالة فئة العرض
+        container.classList.add('hide'); // إضافة فئة الإخفاء
+
+        // الانتظار حتى يكتمل الأنيميشن قبل إخفاء العنصر
+        setTimeout(function() {
+            container.style.display = 'none';
+
+            // إعادة التمرير في الصفحة الرئيسية
+            document.body.style.overflow = 'auto';
+        }, 300); // الانتظار لمدة 0.5 ثانية (مدة الأنيميشن)
+    }
+}
+
+// إضافة مستمع الحدث لزر الإغلاق
+var closeBtn = document.getElementById("close-public-profile-btn");
+if (closeBtn) {
+    closeBtn.addEventListener("click", function () {
+        console.log("تم النقر على زر الإغلاق");
+        closePublicProfile(); // استدعاء دالة الإغلاق
+    });
+}
+
+// إضافة مستمع حدث للروابط التي تفتح داخل الـ iframe
+document.querySelectorAll('.public-profile-link').forEach(function(link) {
+    link.addEventListener('click', function(event) {
+        event.preventDefault(); // منع الانتقال إلى الصفحة الجديدة
+        var url = this.getAttribute('href'); // الحصول على الرابط
+        openPublicProfile(url); // فتح الرابط داخل الـ iframe
+    });
+});
+
+
+// جلب العناصر
+// العناصر
+const openBtnArtical = document.getElementById('artical-open-btn');
+const closeBtnArtical = document.getElementById('artical-close-btn');
+const iframeContainer = document.getElementById('artical-iframe-container');
+const iframe = document.getElementById('artical-iframe');
+const videoBtn = document.querySelector('.video_page'); // الزر الخاص بفتح الفيديو
+
+// فتح الـ iframe مع تحميل المقال
+openBtnArtical.addEventListener('click', (e) => {
+    e.preventDefault();
+    iframe.src = 'artical'; // تحميل الصفحة الخاصة بالمقال داخل الـ iframe
+    iframeContainer.style.display = 'block'; // إظهار iframe container
+    iframeContainer.classList.add('show');
+    iframeContainer.classList.remove('hide');
+});
+
+// فتح الـ iframe مع تحميل الفيديو
+videoBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    iframe.src = 'videos'; // تحميل الصفحة الخاصة بالفيديو داخل الـ iframe
+    iframeContainer.style.display = 'block'; // إظهار iframe container
+    iframeContainer.classList.add('show');
+    iframeContainer.classList.remove('hide');
+});
+
+// إغلاق الـ iframe
+closeBtnArtical.addEventListener('click', () => {
+    iframeContainer.classList.add('hide');
+    iframeContainer.classList.remove('show');
+    setTimeout(() => {
+        iframeContainer.style.display = 'none'; // إخفاء العنصر بعد الأنيميشن
+        iframe.src = ''; // إفراغ الـ iframe بعد الإغلاق
+    }, 300); // زمن الأنيميشن
+});
+
+
+
+    </script>
+  </body>
+</html>

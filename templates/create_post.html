@@ -1,0 +1,293 @@
+{% extends "base.html" %}
+
+{% block title %}إنشاء منشور{% endblock %}
+
+{% block content %}
+<div class="post-creation-container">
+    <!-- User Profile Section -->
+    <div class="user-profile">
+        <div class="profile-circle">
+            <img src="{{ url_for('static', filename='uploads/default-avatar.jpg') }}" alt="Profile Picture" class="profile-pic">
+        </div>
+        <span class="username">{{ current_user.username }}</span>
+    </div>
+
+    <!-- Post Creation Form -->
+    <form class="post-form" method="POST" enctype="multipart/form-data">
+        <div class="post-type-selector">
+            <button type="button" class="type-btn active" data-type="text">
+                <i class="fas fa-font"></i> نص
+            </button>
+            <button type="button" class="type-btn" data-type="media">
+                <i class="fas fa-image"></i> صورة/فيديو
+            </button>
+        </div>
+
+        <div class="text-post-section">
+            <textarea name="content" placeholder="بماذا تفكر؟" class="form-control"></textarea>
+            
+            <div class="background-colors">
+                <button type="button" class="color-btn active" data-color="#ffffff" style="background-color: #ffffff">
+                    <i class="fas fa-font"></i>
+                </button>
+                <button type="button" class="color-btn" data-color="#ffafcc" style="background-color: #ffafcc">
+                    <i class="fas fa-font"></i>
+                </button>
+                <button type="button" class="color-btn" data-color="#a2d2ff" style="background-color: #a2d2ff">
+                    <i class="fas fa-font"></i>
+                </button>
+                <button type="button" class="color-btn" data-color="#caffbf" style="background-color: #caffbf">
+                    <i class="fas fa-font"></i>
+                </button>
+                <button type="button" class="color-btn" data-color="#ffd6a5" style="background-color: #ffd6a5">
+                    <i class="fas fa-font"></i>
+                </button>
+            </div>
+            <input type="hidden" name="background_color" id="background_color" value="#ffffff">
+        </div>
+
+        <div class="media-post-section" style="display: none;">
+            <textarea name="media_content" placeholder="اكتب شيئاً عن هذه الصورة/الفيديو..." class="form-control"></textarea>
+            <div class="media-upload">
+                <input type="file" name="media" id="media-input" accept="image/*,video/*">
+                <label for="media-input" class="upload-label">
+                    <i class="fas fa-cloud-upload-alt"></i> اختر صورة أو فيديو
+                </label>
+                <div id="media-preview"></div>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">نشر</button>
+        </div>
+    </form>
+</div>
+
+<style>
+.post-creation-container {
+    max-width: 600px;
+    margin: 20px auto;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    padding: 20px;
+}
+
+.user-profile {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.profile-circle {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    overflow: hidden;
+    margin-left: 10px;
+}
+
+.profile-circle img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.username {
+    font-weight: bold;
+    color: #1a1a1a;
+}
+
+.post-type-selector {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 10px;
+}
+
+.type-btn {
+    flex: 1;
+    padding: 8px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    border-radius: 4px;
+    color: #65676b;
+}
+
+.type-btn.active {
+    background-color: #e7f3ff;
+    color: #1877f2;
+}
+
+.form-control {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 16px;
+    margin-bottom: 15px;
+    box-sizing: border-box;
+}
+
+textarea.form-control {
+    min-height: 100px;
+    resize: vertical;
+    white-space: pre-wrap;
+    direction: rtl;
+}
+
+.background-colors {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+    padding: 10px;
+    border-radius: 8px;
+    background: #f0f2f5;
+}
+
+.color-btn {
+    width: 40px;
+    height: 40px;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #1a1a1a;
+}
+
+.color-btn.active {
+    border: 2px solid #1877f2;
+}
+
+.media-upload {
+    margin: 15px 0;
+}
+
+.upload-label {
+    display: inline-block;
+    padding: 10px 20px;
+    background: #f0f2f5;
+    border-radius: 8px;
+    cursor: pointer;
+    color: #1877f2;
+}
+
+.upload-label i {
+    margin-left: 8px;
+}
+
+#media-input {
+    display: none;
+}
+
+#media-preview {
+    margin-top: 15px;
+}
+
+#media-preview img,
+#media-preview video {
+    max-width: 100%;
+    border-radius: 8px;
+}
+
+.btn {
+    padding: 8px 20px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.btn-primary {
+    background: #1877f2;
+    color: white;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 15px;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('.post-form');
+    const typeButtons = document.querySelectorAll('.type-btn');
+    const textSection = document.querySelector('.text-post-section');
+    const mediaSection = document.querySelector('.media-post-section');
+    const colorButtons = document.querySelectorAll('.color-btn');
+    const backgroundColorInput = document.getElementById('background_color');
+    const mediaInput = document.getElementById('media-input');
+    const mediaPreview = document.getElementById('media-preview');
+    const contentTextarea = document.querySelector('textarea[name="content"]');
+
+    // Post Type Selection
+    typeButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            typeButtons.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            
+            if (btn.dataset.type === 'text') {
+                textSection.style.display = 'block';
+                mediaSection.style.display = 'none';
+            } else {
+                textSection.style.display = 'none';
+                mediaSection.style.display = 'block';
+            }
+        });
+    });
+
+    // Background Color Selection
+    colorButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            colorButtons.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            const color = btn.dataset.color;
+            backgroundColorInput.value = color;
+            contentTextarea.style.backgroundColor = color;
+        });
+    });
+
+    // Media Preview
+    mediaInput.addEventListener('change', function() {
+        const file = this.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                mediaPreview.innerHTML = '';
+                if (file.type.startsWith('image/')) {
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    mediaPreview.appendChild(img);
+                } else if (file.type.startsWith('video/')) {
+                    const video = document.createElement('video');
+                    video.src = e.target.result;
+                    video.controls = true;
+                    mediaPreview.appendChild(video);
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    // Form Submission
+    form.addEventListener('submit', function(e) {
+        const activeType = document.querySelector('.type-btn.active').dataset.type;
+        if (activeType === 'media') {
+            const mediaContent = document.querySelector('textarea[name="media_content"]').value;
+            document.querySelector('textarea[name="content"]').value = mediaContent;
+        }
+        
+        // Add line breaks for text content
+        const contentTextarea = document.querySelector('textarea[name="content"]');
+        contentTextarea.value = contentTextarea.value.replace(/\n/g, '\n');
+    });
+});
+</script>
+{% endblock %}

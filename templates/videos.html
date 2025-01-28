@@ -1,0 +1,1855 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Videos</title>
+    <!-- إضافة مكتبة FontAwesome -->
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+      rel="stylesheet"
+    />
+
+    <style>
+      /* Skeleton Loading */
+      .skeleton {
+        background-color: #ddd;
+        animation: pulse 1.5s infinite;
+      }
+
+      @keyframes pulse {
+        0% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.5;
+        }
+        100% {
+          opacity: 1;
+        }
+      }
+
+      /* تنسيق الصفحة */
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+      }
+
+      .upload-form {
+        margin-bottom: 30px;
+        padding: 15px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        background-color: #f9f9f9;
+      }
+
+      .video-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+      }
+
+      .video-card {
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        padding: 10px;
+        width: 300px;
+        background-color: #fff;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        cursor: pointer;
+      }
+
+      .video-card img {
+        width: 100%;
+        /* border-radius: 8px; */
+      }
+
+      .video-card h4,
+      .video-card p {
+        margin: 5px 0;
+      }
+
+      .skeleton-card {
+        width: 300px;
+        height: 200px;
+        border-radius: 8px;
+        margin-bottom: 10px;
+      }
+
+      .empty-message {
+        font-size: 18px;
+        color: #555;
+        margin-top: 20px;
+      }
+
+      .uploader_image {
+        width: 30px !important;
+        border-radius: 50% !important;
+      }
+
+      /* النافذة المنبثقة (Modal) */
+      .modal {
+        display: none; /* مخفية بشكل افتراضي */
+        position: fixed; /* ثابتة في مكانها */
+        z-index: 1000; /* تكون فوق كل العناصر */
+        left: 0;
+        top: 0;
+        width: 100%; /* عرض كامل */
+        height: 100%; /* ارتفاع كامل */
+        background-color: rgba(0, 0, 0, 0.9); /* خلفية داكنة مع شفافية */
+        overflow: auto; /* تمكين التمرير إذا لزم الأمر */
+        animation: modalFadeIn 0.3s ease-out forwards; /* إضافة أنيميشن عند فتح المودال */
+      }
+
+      /* محتوى النافذة المنبثقة */
+      .modal-content {
+        background-color: #fff;
+        margin: 0%;
+        /* padding: 20px; */
+        width: 99.4%;
+        height: 100%;
+        text-align: center;
+        overflow: hidden;
+        /* border-radius: 10px; */
+      }
+
+      /* زر الإغلاق */
+      .close {
+        color: #aaa;
+        position: fixed;
+        bottom: 0;
+        right: 50%;
+        transform: translate(50%, 0);
+        overflow: hidden;
+        font-size: 24px;
+        font-weight: bold;
+        cursor: pointer;
+        background-color: brown;
+        padding: 5px;
+        height: 30px;
+        width: 30px;
+        border-radius: 50%;
+        text-align: center;
+        margin-bottom: 10px;
+        margin-top: 10px;
+      }
+
+      .close:hover,
+      .close:focus {
+        color: #000;
+        text-decoration: none;
+      }
+
+      /* الفيديو */
+      video {
+        width: 100%;
+        height: auto;
+        max-width: 100%;
+        max-height: 400px;
+        background-color: black;
+      }
+
+      /* معلومات الفيديو */
+      #videoInfo {
+        margin-top: 15px;
+        padding: 5px 20px;
+        text-align: left;
+      }
+
+      #videoTitle {
+        font-size: 20px; /* حجم خط مناسب للجوال */
+        margin-bottom: 10px;
+        color: #333;
+      }
+
+      #videoCategory,
+      #uploadTime {
+        font-size: 14px; /* حجم خط أصغر */
+        color: #666;
+        margin-bottom: 10px;
+      }
+
+      /* معلومات المُحمِّل */
+      #uploaderInfo {
+        display: flex;
+        justify-content: left;
+        margin-top: 15px;
+      }
+
+      #uploaderName {
+        font-size: 16px; /* حجم خط مناسب للجوال */
+        color: #333;
+        margin-left: 10px;
+      }
+
+      /* الأنيميشن لفتح المودال */
+      @keyframes modalFadeIn {
+        0% {
+          transform: scale(0.8);
+          opacity: 0;
+        }
+        100% {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+
+      /* الأنيميشن لإغلاق المودال */
+      @keyframes modalFadeOut {
+        0% {
+          transform: scale(1);
+          opacity: 1;
+        }
+        100% {
+          transform: scale(0.8);
+          opacity: 0;
+        }
+      }
+
+      /* لتقليص المودال عند الإغلاق */
+      .modal.close-animation {
+        animation: modalFadeOut 0.3s ease-out forwards;
+      }
+
+      /* تنسيق الفيديوهات */
+      .video-card {
+        border: 1px solid #ccc;
+        padding: 15px;
+        margin: 10px;
+        border-radius: 5px;
+        width: 300px;
+        display: inline-block;
+        vertical-align: top;
+      }
+
+      .video-card img {
+        width: 100%;
+        border-radius: 5px;
+      }
+
+      .video-card h4 {
+        margin: 10px 0;
+      }
+
+      .video-card p {
+        margin: 5px 0;
+      }
+
+      .uploader_image {
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        margin-top: 10px;
+        margin-left: 10px;
+      }
+
+      /* تنسيق الأزرار */
+      .video-actions {
+        margin-top: 10px;
+      }
+
+      .video-actions button {
+        margin-right: 10px;
+        padding: 5px 10px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+
+      .video-actions button:hover {
+        background-color: #0056b3;
+      }
+
+      /* تنسيق الـ Modals */
+      .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+      }
+
+      .close-edit,
+      .close-delete {
+        float: right;
+        cursor: pointer;
+        font-size: 24px;
+      }
+
+      .close-edit:hover,
+      .close-delete:hover {
+        color: #000;
+      }
+
+      /* تنسيق عام لـ Modals */
+      .custom-modal {
+        display: none; /* يتم إخفاء الـ Modal بشكل افتراضي */
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.6); /* خلفية شبه شفافة داكنة */
+        backdrop-filter: blur(5px); /* تأثير ضبابي */
+        overflow: auto;
+      }
+
+      /* تنسيق محتوى الـ Modal */
+      .custom-modal-content {
+        position: absolute;
+        top: 50%;
+        transform: translate(0, -50%);
+        background-color: #fff;
+        margin: 0%;
+        padding: 10px 0px;
+        /* border-radius: 12px; */
+        width: 100%;
+        max-width: 500px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        /* animation: fadeIn 0.3s ease-in-out; */
+        height: fit-content;
+      }
+
+      .custom-modal-content-delete {
+        background-color: #fff;
+        margin: 0%;
+        padding: 25px;
+        /* border-radius: 12px; */
+        width: 90%;
+        max-width: 500px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        animation: fadeInDelete 0.3s ease-in-out;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          /* transform: translateY(-20px); */
+        }
+        to {
+          opacity: 1;
+          /* transform: translateY(0); */
+        }
+      }
+
+      @keyframes fadeInDelete {
+        from {
+          opacity: 0;
+          transform: translateY(-20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* تنسيق عنوان الـ Modal */
+      .modal-title {
+        font-size: 1.5rem;
+        color: #333;
+        margin-bottom: 20px;
+        text-align: center;
+      }
+
+      /* تنسيق حقل الإدخال */
+      .modal-input {
+        width: 80%;
+        padding: 10px 3px;
+        margin-bottom: 20px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-size: 1rem;
+        outline: none;
+        transition: border-color 0.3s ease;
+      }
+
+      .modal-input:focus {
+        border-color: #007bff;
+      }
+
+      /* تنسيق الأزرار */
+      .modal-button {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: background-color 0.3s ease, transform 0.2s ease;
+      }
+
+      .modal-button:hover {
+        transform: scale(1.05);
+      }
+
+      .modal-button:active {
+        transform: scale(0.95);
+      }
+
+      .modal-button-save {
+        background-color: #007bff;
+        color: #fff;
+        width: 80%;
+      }
+
+      .modal-button-save:hover {
+        background-color: #0056b3;
+      }
+
+      .modal-button-delete {
+        background-color: #ff4d4d;
+        color: #fff;
+      }
+
+      .modal-button-delete:hover {
+        background-color: #cc0000;
+      }
+
+      .modal-button-cancel {
+        background-color: #f1f1f1;
+        color: #333;
+      }
+
+      .modal-button-cancel:hover {
+        background-color: #ddd;
+      }
+
+      /* تنسيق زر الإغلاق */
+      .custom-close {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        font-size: 1.5rem;
+        color: #888;
+        cursor: pointer;
+        transition: color 0.3s ease;
+      }
+
+      .custom-close:hover {
+        color: #333;
+      }
+
+      /* تنسيق أزرار التأكيد والإلغاء */
+      .modal-buttons {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        margin-top: 20px;
+      }
+
+      /* تأثير الظهور */
+      @keyframes fadeIn {
+        0% {
+          opacity: 0;
+          transform: scale(0.8);
+        }
+        100% {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+
+      /* أسلوب المودال */
+      .modal-message {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5); /* خلفية مظللة */
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+        animation: fadeIn 0.3s ease-in-out; /* تطبيق الأنيميشن عند الظهور */
+      }
+
+      /* محتوى المودال */
+      .modal-content-main {
+        background-color: white;
+        padding: 25px;
+        border-radius: 8px;
+        text-align: center;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        max-width: 400px;
+        width: 100%;
+      }
+
+      /* أيقونة النجاح */
+      .modal-icon {
+        font-size: 50px;
+        color: #4caf50;
+        margin-bottom: 15px;
+        animation: bounce 1s infinite; /* تأثير اهتزاز */
+      }
+
+      /* تأثير الاهتزاز */
+      @keyframes bounce {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-10px);
+        }
+      }
+
+      /* إغلاق المودال */
+      .close-message {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        font-size: 25px;
+        cursor: pointer;
+        color: #888;
+        transition: color 0.3s ease;
+      }
+
+      /* تغيير اللون عند التمرير */
+      .close-message:hover {
+        color: #333;
+      }
+
+      /* رسالة النص */
+      #message-content {
+        font-size: 1.2rem;
+        margin-top: 10px;
+        color: #333;
+      }
+
+      /* إضافة الأنيميشن عند التفاعل مع الأزرار */
+      .modal-buttons {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        margin-top: 20px;
+      }
+
+      /* تنسيق Modal قوائم التشغيل */
+      /* تنسيق Modal قوائم التشغيل */
+      #playlistModal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+      }
+
+      .modal-content-playlist {
+        background-color: #fff;
+        margin: 10% auto;
+        padding: 20px;
+        border-radius: 10px;
+        width: 80%;
+        max-width: 500px;
+      }
+
+      .close-playlist {
+        float: right;
+        font-size: 24px;
+        cursor: pointer;
+      }
+
+      .create-playlist {
+        margin-bottom: 20px;
+      }
+
+      .create-playlist input,
+      .create-playlist select {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 10px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+      }
+
+      .create-playlist button {
+        width: 100%;
+        padding: 10px;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+
+      .existing-playlists ul {
+        list-style-type: none;
+        padding: 0;
+      }
+
+      .existing-playlists li {
+        margin-bottom: 10px;
+      }
+
+      .existing-playlists label {
+        display: flex;
+        align-items: center;
+      }
+
+      .existing-playlists input[type="checkbox"] {
+        margin-right: 10px;
+      }
+
+      #addToSelectedPlaylists {
+        width: 100%;
+        padding: 10px;
+        background-color: #28a745;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        margin-top: 20px;
+      }
+
+      .delete-playlist {
+        background-color: #ff4d4d;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        border-radius: 5px;
+        cursor: pointer;
+        margin-left: 10px;
+      }
+
+      .delete-playlist:hover {
+        background-color: #cc0000;
+      }
+
+
+
+        /* أنماط النماذج (Modals) */
+        .modal-unique {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            overflow: scroll;
+        }
+        .modal-content-unique {
+          position: absolute;
+        top: 50%;
+        transform: translate(0, -50%);
+        background-color: #fff;
+        margin: 0%;
+        padding: 10px 0px;
+        /* border-radius: 12px; */
+        width: 100%;
+        max-width: 500px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        /* animation: fadeIn 0.3s ease-in-out; */
+        height: 100%;
+        /* overflow: hidden; */
+        }
+
+
+        
+        .close-unique {
+            /* position: absolute; */
+           
+         
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        /* أنماط قائمة التشغيل */
+        .playlist-item-unique {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+            cursor: pointer;
+        }
+        .playlist-item-unique:hover {
+            background: #f1f1f1;
+        }
+
+     
+        .video-list-unique {
+            margin-top: 20px;
+        }
+        .video-item-unique {
+            display: flex;
+            align-items: center;
+            /* margin-bottom: 10px; */
+            background-color: #bdb8b8;        
+            cursor: pointer;
+        }
+        .video-item-unique img {
+            width: 120px;
+            height: 90px;
+            margin-right: 10px;
+        }
+
+
+        .video-item-unique.active {
+    background-color: #f0f0f0;  /* تغيير خلفية الفيديو النشط */
+    border: 2px solid #007bff;  /* إضافة حدود للفيديو النشط */
+}
+
+#videosModal{
+  /* overflow: hidden; */
+}
+
+#videosList{
+  overflow: scroll;
+}
+
+
+/* anmation loading vidoes to upload */
+
+:root {
+	--bg: hsl(90,90%,20%);
+	--fg: hsl(223,10%,10%);
+	font-size: calc(16px + (24 - 16) * (100vw - 320px) / (1280 - 320));
+}
+
+.wheel-and-hamster {
+	--dur: 1s;
+	position: relative;
+	width: 12em;
+	height: 12em;
+}
+.wheel,
+.hamster,
+.hamster div,
+.spoke {
+	position: absolute;
+}
+.wheel,
+.spoke {
+	border-radius: 50%;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+}
+.wheel {
+	background: radial-gradient(100% 100% at center,hsla(0,0%,60%,0) 47.8%,hsl(0,0%,60%) 48%);
+	z-index: 2;
+}
+.hamster {
+	animation: hamster var(--dur) ease-in-out infinite;
+	top: 50%;
+	left: calc(50% - 3.5em);
+	width: 7em;
+	height: 3.75em;
+	transform: rotate(4deg) translate(-0.8em,1.85em);
+	transform-origin: 50% 0;
+	z-index: 1;
+}
+.hamster__head {
+	animation: hamsterHead var(--dur) ease-in-out infinite;
+	background: hsl(30,90%,55%);
+	border-radius: 70% 30% 0 100% / 40% 25% 25% 60%;
+	box-shadow:
+		0 -0.25em 0 hsl(30,90%,80%) inset,
+		0.75em -1.55em 0 hsl(30,90%,90%) inset;
+	top: 0;
+	left: -2em;
+	width: 2.75em;
+	height: 2.5em;
+	transform-origin: 100% 50%;
+}
+.hamster__ear {
+	animation: hamsterEar var(--dur) ease-in-out infinite;
+	background: hsl(0,90%,85%);
+	border-radius: 50%;
+	box-shadow: -0.25em 0 hsl(30,90%,55%) inset;
+	top: -0.25em;
+	right: -0.25em;
+	width: 0.75em;
+	height: 0.75em;
+	transform-origin: 50% 75%;
+}
+.hamster__eye {
+	animation: hamsterEye var(--dur) linear infinite;
+	background-color: hsl(0,0%,0%);
+	border-radius: 50%;
+	top: 0.375em;
+	left: 1.25em;
+	width: 0.5em;
+	height: 0.5em;
+}
+.hamster__nose {
+	background: hsl(0,90%,75%);
+	border-radius: 35% 65% 85% 15% / 70% 50% 50% 30%;
+	top: 0.75em;
+	left: 0;
+	width: 0.2em;
+	height: 0.25em;
+}
+.hamster__body {
+	animation: hamsterBody var(--dur) ease-in-out infinite;
+	background: hsl(30,90%,90%);
+	border-radius: 50% 30% 50% 30% / 15% 60% 40% 40%;
+	box-shadow:
+		0.1em 0.75em 0 hsl(30,90%,55%) inset,
+		0.15em -0.5em 0 hsl(30,90%,80%) inset;
+	top: 0.25em;
+	left: 2em;
+	width: 4.5em;
+	height: 3em;
+	transform-origin: 17% 50%;
+	transform-style: preserve-3d;
+}
+.hamster__limb--fr,
+.hamster__limb--fl {
+	clip-path: polygon(0 0,100% 0,70% 80%,60% 100%,0% 100%,40% 80%);
+	top: 2em;
+	left: 0.5em;
+	width: 1em;
+	height: 1.5em;
+	transform-origin: 50% 0;
+}
+.hamster__limb--fr {
+	animation: hamsterFRLimb var(--dur) linear infinite;
+	background: linear-gradient(hsl(30,90%,80%) 80%,hsl(0,90%,75%) 80%);
+	transform: rotate(15deg) translateZ(-1px);
+}
+.hamster__limb--fl {
+	animation: hamsterFLLimb var(--dur) linear infinite;
+	background: linear-gradient(hsl(30,90%,90%) 80%,hsl(0,90%,85%) 80%);
+	transform: rotate(15deg);
+}
+.hamster__limb--br,
+.hamster__limb--bl {
+	border-radius: 0.75em 0.75em 0 0;
+	clip-path: polygon(0 0,100% 0,100% 30%,70% 90%,70% 100%,30% 100%,40% 90%,0% 30%);
+	top: 1em;
+	left: 2.8em;
+	width: 1.5em;
+	height: 2.5em;
+	transform-origin: 50% 30%;
+}
+.hamster__limb--br {
+	animation: hamsterBRLimb var(--dur) linear infinite;
+	background: linear-gradient(hsl(30,90%,80%) 90%,hsl(0,90%,75%) 90%);
+	transform: rotate(-25deg) translateZ(-1px);
+}
+.hamster__limb--bl {
+	animation: hamsterBLLimb var(--dur) linear infinite;
+	background: linear-gradient(hsl(30,90%,90%) 90%,hsl(0,90%,85%) 90%);
+	transform: rotate(-25deg);
+}
+.hamster__tail {
+	animation: hamsterTail var(--dur) linear infinite;
+	background: hsl(0,90%,85%);
+	border-radius: 0.25em 50% 50% 0.25em;
+	box-shadow: 0 -0.2em 0 hsl(0,90%,75%) inset;
+	top: 1.5em;
+	right: -0.5em;
+	width: 1em;
+	height: 0.5em;
+	transform: rotate(30deg) translateZ(-1px);
+	transform-origin: 0.25em 0.25em;
+}
+.spoke {
+	animation: spoke var(--dur) linear infinite;
+	background:
+		radial-gradient(100% 100% at center,hsl(0,0%,60%) 4.8%,hsla(0,0%,60%,0) 5%),
+		linear-gradient(hsla(0,0%,55%,0) 46.9%,hsl(0,0%,65%) 47% 52.9%,hsla(0,0%,65%,0) 53%) 50% 50% / 99% 99% no-repeat;
+}
+
+/* Animations */
+@keyframes hamster {
+	from, to { transform: rotate(4deg) translate(-0.8em,1.85em); }
+	50% { transform: rotate(0) translate(-0.8em,1.85em); }
+}
+@keyframes hamsterHead {
+	from, 25%, 50%, 75%, to { transform: rotate(0); }
+	12.5%, 37.5%, 62.5%, 87.5% { transform: rotate(8deg); }
+}
+@keyframes hamsterEye {
+	from, 90%, to { transform: scaleY(1); }
+	95% { transform: scaleY(0); }
+}
+@keyframes hamsterEar {
+	from, 25%, 50%, 75%, to { transform: rotate(0); }
+	12.5%, 37.5%, 62.5%, 87.5% { transform: rotate(12deg); }
+}
+@keyframes hamsterBody {
+	from, 25%, 50%, 75%, to { transform: rotate(0); }
+	12.5%, 37.5%, 62.5%, 87.5% { transform: rotate(-2deg); }
+}
+@keyframes hamsterFRLimb {
+	from, 25%, 50%, 75%, to { transform: rotate(50deg) translateZ(-1px); }
+	12.5%, 37.5%, 62.5%, 87.5% { transform: rotate(-30deg) translateZ(-1px); }
+}
+@keyframes hamsterFLLimb {
+	from, 25%, 50%, 75%, to { transform: rotate(-30deg); }
+	12.5%, 37.5%, 62.5%, 87.5% { transform: rotate(50deg); }
+}
+@keyframes hamsterBRLimb {
+	from, 25%, 50%, 75%, to { transform: rotate(-60deg) translateZ(-1px); }
+	12.5%, 37.5%, 62.5%, 87.5% { transform: rotate(20deg) translateZ(-1px); }
+}
+@keyframes hamsterBLLimb {
+	from, 25%, 50%, 75%, to { transform: rotate(20deg); }
+	12.5%, 37.5%, 62.5%, 87.5% { transform: rotate(-60deg); }
+}
+@keyframes hamsterTail {
+	from, 25%, 50%, 75%, to { transform: rotate(30deg) translateZ(-1px); }
+	12.5%, 37.5%, 62.5%, 87.5% { transform: rotate(10deg) translateZ(-1px); }
+}
+@keyframes spoke {
+	from { transform: rotate(0); }
+	to { transform: rotate(-1turn); }
+}
+
+.main-anmi-loading{
+  background: var(--bg);
+    color: var(--fg);
+    font: 1em / 1.5 sans-serif;
+    height: 100vh;
+    display: grid;
+    place-items: center;
+    position: fixed;
+    left: 0;
+    right: 0;
+    top: 0;
+    display: none;
+}
+
+    </style>
+  </head>
+  <body>
+    <div class="main-anmi-loading">
+
+    <div class="wheel-and-hamster" role="img" aria-label="Orange and tan hamster running in a metal wheel">
+      <div class="wheel"></div>
+      <div class="hamster">
+        <div class="hamster__body">
+          <div class="hamster__head">
+            <div class="hamster__ear"></div>
+            <div class="hamster__eye"></div>
+            <div class="hamster__nose"></div>
+          </div>
+          <div class="hamster__limb hamster__limb--fr"></div>
+          <div class="hamster__limb hamster__limb--fl"></div>
+          <div class="hamster__limb hamster__limb--br"></div>
+          <div class="hamster__limb hamster__limb--bl"></div>
+          <div class="hamster__tail"></div>
+        </div>
+      </div>
+      <div class="spoke"></div>
+    </div>
+
+      
+  </div>
+    <!-- Video Modal -->
+    <!-- Video Modal -->
+    <div id="videoModal" class="modal">
+      <div class="modal-content">
+        <span class="close">&times;</span>
+        <video autoplay id="videoPlayer" controls>
+          <source id="videoSource" type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
+        <div id="videoInfo">
+          <h3 id="videoTitle"></h3>
+          <p id="videoCategory"></p>
+          <p id="uploadTime"></p>
+          <div id="uploaderInfo">
+            <p>Uploaded by: <span id="uploaderName"></span></p>
+            <img
+              id="uploaderImage"
+              src=""
+              alt="Uploader Image"
+              class="uploader_image"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- نموذج رفع الفيديو -->
+    <div class="upload-form">
+<!-- حقل البحث -->
+<input type="text" id="searchInput" placeholder="ابحث عن الفيديوهات..." />
+<br>
+<br>
+
+<!-- زر لعرض قوائم التشغيل العامة -->
+<button id="showPlaylistsBtn">عرض القوائم العامة</button>
+
+<!-- زر لعرض قوائم التشغيل الخاصة بالمستخدم الحالي -->
+<!-- زر جديد لعرض قوائم التشغيل الخاصة بالمستخدم -->
+<button id="showUserPlaylistsBtn">عرض قوائم التشغيل الخاصة بي</button>
+
+<div class="loading_model" id="loading_upload_model" style="display: none;">
+  <div class="progress-circle" id="progress-circle">
+    <span id="progress-percentage">0%</span>
+  </div>
+</div>
+<h3>Upload a Video</h3>
+<form id="upload-form" action="/videos" method="POST" enctype="multipart/form-data">
+    <label for="title">Video Title:</label>
+    <input type="text" name="title" id="title" required />
+    <br /><br />
+    <label for="video">Select Video:</label>
+    <input type="file" name="video" id="video" required />
+    <br /><br />
+    <label for="thumbnail">Select Thumbnail (optional):</label>
+    <input type="file" name="thumbnail" id="thumbnail" />
+    <br /><br />
+    <button type="submit">Upload</button>
+</form>
+
+    <!-- عرض الفيديوهات -->
+    <p id="no-results-message" style="display: none;">لا توجد نتائج للبحث</p>
+    <div id="video-container" class="video-container">
+
+      <!-- Skeleton Loading -->
+      {% for _ in range(5) %}
+      <div class="skeleton skeleton-card"></div>
+      {% endfor %}
+    </div>
+
+    <!-- رسالة عند عدم وجود فيديوهات -->
+    <div id="empty-message" class="empty-message" style="display: none">
+      No videos found.
+    </div>
+
+    <!-- Modal لتعديل الفيديو -->
+    <div id="editModal" class="modal custom-modal">
+      <div class="modal-content custom-modal-content">
+        <span class="close-edit custom-close">&times;</span>
+        <h2 class="modal-title">تعديل عنوان الفيديو</h2>
+        <input
+          type="text"
+          id="editTitle"
+          class="modal-input"
+          placeholder="العنوان الجديد"
+        />
+        <button id="saveEdit" class="modal-button modal-button-save">
+          حفظ
+        </button>
+      </div>
+    </div>
+
+    <!-- Modal لتأكيد الحذف -->
+    <div id="deleteModal" class="custom-modal">
+      <div class="custom-modal-content-delete">
+        <span class="close-delete custom-close">&times;</span>
+        <h2 class="modal-title">هل أنت متأكد من حذف الفيديو؟</h2>
+        <div class="modal-buttons">
+          <button id="confirmDelete" class="modal-button modal-button-delete">
+            نعم، احذف
+          </button>
+          <button id="cancelDelete" class="modal-button modal-button-cancel">
+            إلغاء
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Message -->
+    <!-- Modal Message -->
+    <div id="model-message-success" class="modal-message">
+      <div class="modal-content-main">
+        <span class="close-message">&times;</span>
+        <!-- أيقونة الصح مع الرسالة -->
+        <div class="modal-icon">
+          <i class="fas fa-check-circle success-icon"></i>
+        </div>
+        <p id="message-content"></p>
+      </div>
+    </div>
+
+    <!-- Modal لإضافة الفيديو إلى قائمة التشغيل -->
+    <div id="playlistModal" class="modal">
+        <div class="modal-content-playlist">
+            <span class="close-playlist">&times;</span>
+            <h2>إضافة إلى قائمة التشغيل</h2>
+    
+            <!-- إنشاء قائمة تشغيل جديدة -->
+            <div class="create-playlist">
+                <input type="text" id="newPlaylistName" placeholder="اسم قائمة التشغيل الجديدة" />
+                <select id="playlistVisibility">
+                    <option value="public">عامة</option>
+                    <option value="private">خاصة</option>
+                </select>
+                <button id="createPlaylist">إنشاء قائمة</button>
+            </div>
+    
+            <!-- قوائم التشغيل الحالية -->
+            <div class="existing-playlists">
+                <h3>قوائم التشغيل الحالية</h3>
+                <ul id="playlistList"></ul>
+            </div>
+        </div>
+    </div>
+
+
+
+    <!-- Modal لقوائم التشغيل -->
+    <div id="playlistsModal" class="modal-unique">
+      <div class="modal-content-unique">
+          <h2>Playlists</h2>
+          <button class="close-unique" onclick="closeModalUnique('playlistsModal')">&times;</button>
+
+          <!-- حقل البحث -->
+          <input 
+              type="text" 
+              id="searchPlaylistsInput" 
+              placeholder="ابحث عن قائمة تشغيل..." 
+              style="width: 100%; margin-bottom: 10px; padding: 8px; border: 1px solid #ccc; border-radius: 5px;">
+          <ul id="playlistsList"></ul>
+      </div>
+    </div>
+    
+<!-- Modal للفيديوهات -->
+<!-- نافذة الـ Modal الخاصة بالفيديوهات -->
+<div id="videosModal" class="modal-unique">
+  
+  <div class="modal-content-unique">
+
+      <div id="videoPlayerContainer">
+        <!-- محتوى الفيديو هنا -->
+         
+        <video id="videoPlayer2" class="video-player-unique" controls></video>
+        <button class="close-unique" onclick="closeModalUnique('videosModal')">&times;</button>
+
+        <div id="videoDetails" class="mt-3"></div>
+      </div>
+
+      <div id="videosList" class="video-list-unique"></div>
+  </div>
+</div>
+
+
+    <script>
+   document.addEventListener("DOMContentLoaded", function () {
+  // جلب الفيديوهات باستخدام AJAX بعد تحميل الصفحة
+  fetch("/get_videos")
+    .then((response) => response.json())
+    .then((data) => {
+      console.log("Fetched videos data:", data); // تحقق من البيانات هنا
+      const videoContainer = document.getElementById("video-container");
+      const emptyMessage = document.getElementById("empty-message");
+      const noResultsMessage = document.getElementById("no-results-message");
+
+      // إزالة السكلتون إذا كانت هناك فيديوهات
+      if (data.length > 0) {
+        videoContainer.innerHTML = ""; // مسح السكلتون
+        data.forEach((video) => {
+          console.log("Video data:", video); // تحقق من كل فيديو
+          const videoCard = document.createElement("div");
+          videoCard.classList.add("video-card");
+          videoCard.innerHTML = `
+            <img src="${video.thumbnail}" alt="Thumbnail">
+            <h4>${video.uploader_name}</h4>
+            <p><strong>Title:</strong> ${video.title}</p>
+            <p><strong>Category:</strong> ${video.category}</p>
+            <p>${video.upload_time}</p>
+            <img class="uploader_image" src="${video.uploader_image}" alt="User Image" width="50">
+
+            <!-- الأزرار -->
+            <div class="video-actions">
+                ${
+                  video.is_owner
+                    ? `
+                      <button class="edit-video" data-video-id="${video.id}">تعديل</button>
+                      <button class="delete-video" data-video-id="${video.id}">حذف</button>
+                    `
+                    : ""
+                }
+                <button class="add-to-playlist" data-video-id="${video.id}">إضافة إلى قائمة التشغيل</button>
+            </div>
+          `;
+          videoContainer.appendChild(videoCard);
+
+          // إضافة أحداث للأزرار
+          if (video.is_owner) {
+            const editButton = videoCard.querySelector(".edit-video");
+            const deleteButton = videoCard.querySelector(".delete-video");
+
+            editButton.addEventListener("click", function (e) {
+              e.stopPropagation(); // منع انتشار الحدث إلى الفيديو
+              openEditModal(video);
+            });
+
+            deleteButton.addEventListener("click", function (e) {
+              e.stopPropagation(); // منع انتشار الحدث إلى الفيديو
+              openDeleteModal(video);
+            });
+          }
+
+          const addToPlaylistButton = videoCard.querySelector(".add-to-playlist");
+          addToPlaylistButton.addEventListener("click", function (e) {
+            e.stopPropagation(); // منع انتشار الحدث إلى الفيديو
+            addToPlaylist(video); // فتح Modal قوائم التشغيل
+          });
+
+          // إضافة حدث عند النقر على الفيديو لفتح الـ Modal
+          videoCard.addEventListener("click", function () {
+            openModal(video);
+          });
+
+          // إضافة خصائص مميزة لكل فيديو
+          videoCard.dataset.title = video.title.toLowerCase(); // حفظ العنوان داخل الـ dataset
+          videoCard.dataset.category = video.category.toLowerCase(); // حفظ الفئة داخل الـ dataset
+        });
+
+        // إضافة حدث البحث على النص المدخل
+        const searchInput = document.getElementById("searchInput");
+        searchInput.addEventListener("input", function () {
+          const searchTerm = searchInput.value.trim().toLowerCase(); // النص المدخل
+          let resultsFound = false; // متغير لتتبع ما إذا كانت هناك نتائج أم لا
+
+          // إخفاء الفيديوهات التي لا تتطابق مع النص المدخل
+          const videoCards = videoContainer.querySelectorAll(".video-card");
+          videoCards.forEach((videoCard) => {
+            const title = videoCard.dataset.title; // الحصول على العنوان المخزن
+            const category = videoCard.dataset.category; // الحصول على الفئة المخزنة
+
+            // إذا كان هناك تطابق مع النص المدخل، إظهار الفيديو
+            if (title.includes(searchTerm) || category.includes(searchTerm)) {
+              videoCard.style.display = "block"; // إظهار الفيديو إذا كان متوافقًا مع البحث
+              resultsFound = true; // هناك نتائج
+            } else {
+              videoCard.style.display = "none"; // إخفاء الفيديو إذا لم يتوافق مع البحث
+            }
+          });
+
+          // إظهار أو إخفاء رسالة "لا توجد نتائج"
+          if (resultsFound) {
+            noResultsMessage.style.display = "none"; // إخفاء الرسالة إذا كانت هناك نتائج
+          } else {
+            noResultsMessage.style.display = "block"; // إظهار الرسالة إذا لم توجد نتائج
+          }
+        });
+      } else {
+        // إذا لم توجد فيديوهات، إظهار رسالة فارغة
+        setTimeout(() => {
+          videoContainer.innerHTML = ""; // مسح السكلتون
+          emptyMessage.style.display = "block"; // عرض الرسالة
+        }, 1000); // تأخير 1 ثانية
+      }
+    })
+    .catch((error) => {
+      console.error("Error fetching videos:", error);
+      const videoContainer = document.getElementById("video-container");
+      videoContainer.innerHTML = ""; // مسح السكلتون في حالة حدوث خطأ
+      const emptyMessage = document.getElementById("empty-message");
+      emptyMessage.textContent =
+        "Failed to load videos. Please try again later.";
+      emptyMessage.style.display = "block";
+    });
+});
+
+
+    // وظيفة البحث داخل قوائم التشغيل
+    document.getElementById('searchPlaylistsInput').addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            const items = document.querySelectorAll('.playlist-item-unique');
+            
+            items.forEach(item => {
+                const playlistName = item.textContent.toLowerCase();
+                if (playlistName.includes(searchTerm)) {
+                    item.style.display = 'list-item';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        });
+
+      // دالة لفتح الـ Modal عند النقر على الفيديو
+      function openModal(video) {
+        const modal = document.getElementById("videoModal");
+        const videoPlayer = document.getElementById("videoPlayer");
+        const videoTitle = document.getElementById("videoTitle");
+        const videoCategory = document.getElementById("videoCategory");
+        const uploadTime = document.getElementById("uploadTime");
+        const uploaderName = document.getElementById("uploaderName");
+        const uploaderImage = document.getElementById("uploaderImage");
+        const videoSource = document.getElementById("videoSource");
+
+        // عرض الـ Modal مع أنيميشن
+        modal.style.display = "block";
+        modal.classList.remove("close-animation"); // إزالة التأثير عند الإغلاق
+
+        // تحديث البيانات فقط بعد عرض المودال
+        setTimeout(() => {
+          // تحديث مصدر الفيديو بشكل غير متزامن
+          videoSource.src = video.video_path;
+          videoPlayer.load(); // إعادة تحميل الفيديو (يبدأ التحميل)
+
+          // تحديث النصوص التفصيلية
+          videoTitle.textContent = video.title;
+          videoCategory.textContent = `Category: ${video.category}`;
+          uploadTime.textContent = `Uploaded on: ${video.upload_time}`;
+          uploaderName.textContent = video.uploader_name;
+          uploaderImage.src = video.uploader_image;
+        }, 50); // إضافة تأخير بسيط لكي يظهر المودال بسرعة قبل تحميل الفيديو
+      }
+
+      // غلق الـ Modal عند النقر على زر الإغلاق
+      document.querySelector(".close").addEventListener("click", function () {
+        const modal = document.getElementById("videoModal");
+        modal.classList.add("close-animation"); // إضافة التأثير عند الإغلاق
+
+        const videoSource = document.getElementById("videoSource");
+        const videoPlayer = document.getElementById("videoPlayer");
+
+        // إزالة مصدر الفيديو لعدم تحميله في الخلفية
+        videoSource.src = "";
+        videoPlayer.load(); // إيقاف تحميل الفيديو
+
+        // تأخير إخفاء المودال حتى تنتهي الأنيميشن
+        setTimeout(() => {
+          modal.style.display = "none";
+        }, 200); // تأخير يتناسب مع مدة الأنيميشن (0.3 ثانية)
+      });
+
+      function showMessage(message, isSuccess) {
+        const modal = document.getElementById("model-message-success");
+        const messageContent = document.getElementById("message-content");
+        const closeButton = document.querySelector(".close-message");
+        const successIcon = document.querySelector(".success-icon");
+
+        // تغيير محتوى الرسالة بناءً على النجاح أو الفشل
+        messageContent.textContent = message;
+
+        // تغيير الأيقونة بناءً على النجاح أو الفشل
+        if (isSuccess) {
+          successIcon.classList.remove("fa-times-circle");
+          successIcon.classList.add("fa-check-circle");
+          successIcon.style.color = "#4CAF50"; // الأخضر للنجاح
+        } else {
+          successIcon.classList.remove("fa-check-circle");
+          successIcon.classList.add("fa-times-circle");
+          successIcon.style.color = "#F44336"; // الأحمر للفشل
+        }
+
+        // إظهار المودال
+        modal.style.display = "flex";
+
+        // إغلاق المودال عند الضغط على زر الإغلاق
+        closeButton.onclick = function () {
+          modal.style.display = "none";
+        };
+
+        // إغلاق المودال بعد 3 ثواني
+        setTimeout(function () {
+          modal.style.display = "none";
+        }, 1000);
+      }
+
+      // دالة لفتح Modal التعديل
+      function openEditModal(video) {
+        const editModal = document.getElementById("editModal");
+        const editTitleInput = document.getElementById("editTitle");
+        editTitleInput.value = video.title; // تعبئة العنوان الحالي
+        editModal.style.display = "block";
+
+        // إغلاق Modal التعديل عند النقر على زر الإغلاق
+        const closeEditButton = document.querySelector(".close-edit");
+        closeEditButton.addEventListener("click", function () {
+          editModal.style.display = "none";
+        });
+
+        // حفظ التعديلات
+        const saveEditButton = document.getElementById("saveEdit");
+        saveEditButton.onclick = function () {
+          const newTitle = editTitleInput.value;
+          if (newTitle) {
+            fetch(`/edit_video/${video.id}`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ title: newTitle }),
+            })
+              .then((response) => response.json())
+              .then((data) => {
+                if (data.success) {
+                  showMessage("تم تعديل العنوان بنجاح", true); // عرض رسالة النجاح
+                  editModal.style.display = "none";
+                  location.reload(); // إعادة تحميل الصفحة لتحديث البيانات
+                } else {
+                  showMessage("حدث خطأ أثناء تعديل العنوان", false); // عرض رسالة الفشل
+                }
+              });
+          }
+        };
+      }
+
+      // دالة لفتح Modal الحذف
+      function openDeleteModal(video) {
+        const deleteModal = document.getElementById("deleteModal");
+        deleteModal.style.display = "block";
+
+        // إغلاق Modal الحذف عند النقر على زر الإغلاق
+        const closeDeleteButton = document.querySelector(".close-delete");
+        closeDeleteButton.addEventListener("click", function () {
+          deleteModal.style.display = "none";
+        });
+
+        // تأكيد الحذف
+        const confirmDeleteButton = document.getElementById("confirmDelete");
+        confirmDeleteButton.onclick = function () {
+          fetch(`/delete_video/${video.id}`, {
+            method: "DELETE",
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              if (data.success) {
+                showMessage("تم الحذف بنجاح", true); // عرض رسالة النجاح
+                deleteModal.style.display = "none";
+                location.reload(); // إعادة تحميل الصفحة لتحديث البيانات
+              }
+            });
+        };
+
+        // إلغاء الحذف
+        const cancelDeleteButton = document.getElementById("cancelDelete");
+        cancelDeleteButton.onclick = function () {
+          deleteModal.style.display = "none";
+        };
+      }
+
+
+
+
+      // دالة لفتح Modal قوائم التشغيل
+// دالة لفتح Modal قوائم التشغيل
+function openPlaylistModal(video) {
+    const modal = document.getElementById("playlistModal");
+    modal.style.display = "block";
+
+    // إغلاق Modal عند النقر على زر الإغلاق
+    const closeButton = document.querySelector(".close-playlist");
+    closeButton.onclick = function () {
+        modal.style.display = "none";
+    };
+
+    // دالة لتحديث قوائم التشغيل في الواجهة
+    function updatePlaylists() {
+        fetch(`/get_playlists_with_video_status/${video.id}`)
+            .then((response) => response.json())
+            .then((data) => {
+                const playlistList = document.getElementById("playlistList");
+                playlistList.innerHTML = ""; // مسح القوائم القديمة
+
+                data.forEach((playlist) => {
+                    const listItem = document.createElement("li");
+                    listItem.innerHTML = `
+                        <label>
+                            <input type="checkbox" class="playlist-checkbox" 
+                                   data-playlist-id="${playlist.id}" 
+                                   ${playlist.video_exists ? "checked" : ""}>
+                            ${playlist.name} (${playlist.is_public ? "عامة" : "خاصة"})
+                        </label>
+                        <button class="delete-playlist" data-playlist-id="${playlist.id}">حذف</button>
+                    `;
+                    playlistList.appendChild(listItem);
+
+                    // إضافة حدث تغيير الـ Checkbox
+                    const checkbox = listItem.querySelector(".playlist-checkbox");
+                    checkbox.addEventListener("change", function (e) {
+                        const playlistId = checkbox.getAttribute("data-playlist-id");
+                        const isChecked = checkbox.checked;
+
+                        if (isChecked) {
+                            // إضافة الفيديو إلى القائمة
+                            fetch(`/add_video_to_playlist/${playlistId}/${video.id}`, {
+                                method: "POST",
+                            })
+                                .then((response) => response.json())
+                                .then((data) => {
+                                    if (data.success) {
+                                        console.log(`تمت إضافة الفيديو إلى القائمة ${playlistId}`);
+                                    }
+                                });
+                        } else {
+                            // إزالة الفيديو من القائمة
+                            fetch(`/remove_video_from_playlist/${playlistId}/${video.id}`, {
+                                method: "DELETE",
+                            })
+                                .then((response) => response.json())
+                                .then((data) => {
+                                    if (data.success) {
+                                        console.log(`تمت إزالة الفيديو من القائمة ${playlistId}`);
+                                    }
+                                });
+                        }
+                    });
+
+                    // إضافة حدث حذف قائمة التشغيل
+                    const deleteButton = listItem.querySelector(".delete-playlist");
+                    deleteButton.addEventListener("click", function (e) {
+                        e.stopPropagation(); // منع انتشار الحدث
+                        const playlistId = deleteButton.getAttribute("data-playlist-id");
+                        deletePlaylist(playlistId, video); // تمرير video كمعامل
+                    });
+                });
+            });
+    }
+
+    // تحديث قوائم التشغيل عند فتح الـ Modal
+    updatePlaylists();
+
+    // إنشاء قائمة تشغيل جديدة
+    const createPlaylistButton = document.getElementById("createPlaylist");
+    createPlaylistButton.onclick = function () {
+        const newPlaylistName = document.getElementById("newPlaylistName").value;
+        const isPublic = document.getElementById("playlistVisibility").value === "public";
+
+        if (newPlaylistName) {
+            fetch("/create_playlist", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    name: newPlaylistName,
+                    is_public: isPublic,
+                }),
+            })
+                .then((response) => response.json())
+                .then((data) => {
+                    if (data.success) {
+                        updatePlaylists(); // تحديث قوائم التشغيل بعد الإنشاء
+                    }
+                });
+        }
+    };
+}
+
+// دالة لحذف قائمة التشغيل
+function deletePlaylist(playlistId, video) {
+    if (confirm("هل أنت متأكد من حذف هذه القائمة؟")) {
+        fetch(`/delete_playlist/${playlistId}`, {
+            method: "DELETE",
+        })
+            .then((response) => response.json())
+            .then((data) => {
+                if (data.success) {
+                    // alert("تم حذف القائمة بنجاح");
+                    openPlaylistModal(video); // إعادة تحميل قوائم التشغيل بعد الحذف
+                } else {
+                    alert("حدث خطأ أثناء حذف القائمة");
+                }
+            });
+    }
+}
+      // دالة لإضافة الفيديو إلى قائمة التشغيل
+      function addToPlaylist(video) {
+        openPlaylistModal(video); // فتح Modal قوائم التشغيل
+      }
+
+
+
+// وظيفة لفتح النماذج
+function openModalUnique(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.style.display = 'flex';
+        let videoPlayer2 =document.getElementById("videoPlayer2").style.display = "flex"
+
+    }
+}
+
+// وظيفة لإغلاق النماذج
+function closeModalUnique(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.style.display = 'none';
+        let videoPlayer2 = document.getElementById("videoPlayer2").load();;
+
+    }
+}
+// جلب قوائم التشغيل وعرضها
+document.getElementById('showPlaylistsBtn').addEventListener('click', async () => {
+    try {
+        const response = await fetch('/get_playlists');
+        if (!response.ok) {
+            throw new Error(`فشل تحميل قوائم التشغيل: ${response.statusText}`);
+        }
+
+        const playlists = await response.json();
+        const playlistsList = document.getElementById('playlistsList');
+        if (playlists.length === 0) {
+            playlistsList.innerHTML = '<li>No playlists available</li>';
+        } else {
+            playlistsList.innerHTML = playlists.map(playlist => `
+                <li class="playlist-item-unique" data-playlist-id="${playlist.id}">
+                    ${playlist.name}
+                </li>
+            `).join('');
+        }
+
+        openModalUnique('playlistsModal'); // فتح Modal قوائم التشغيل
+
+        // إضافة حدث النقر على عنصر قائمة التشغيل
+        document.querySelectorAll('.playlist-item-unique').forEach(item => {
+            item.addEventListener('click', async () => {
+                const playlistId = item.getAttribute('data-playlist-id');
+                try {
+                    const response = await fetch(`/get_playlist_videos/${playlistId}`);
+                    if (!response.ok) {
+                        throw new Error(`فشل تحميل الفيديوهات لقائمة التشغيل: ${response.statusText}`);
+                    }
+
+                    const videos = await response.json();
+                    const videosList = document.getElementById('videosList');
+                    if (videos.length === 0) {
+                        const videoPlayer2 = document.getElementById("videoPlayer2").style.display = "none"
+                        const videoDetails = document.getElementById("videoDetails")
+                        videoDetails.innerHTML = '<div>No videos available</div>';
+                    } else {
+                        let videoPlayer2 = document.getElementById('videoPlayer2')
+                        videoPlayer2.style.display = "flex"
+                        videosList.innerHTML = videos.map(video => `
+                            <div class="video-item-unique" data-video-id="${video.id}">
+                                <img src="${video.thumbnail_path}" alt="${video.title}">
+                                <div>
+                                    <h6>${video.title}</h6>
+                                    <small>${video.uploader_name}</small>
+                                    <!-- زر حذف الفيديو يظهر فقط إذا كان المستخدم هو المالك -->
+                                    ${video.is_owner ? `<button class="delete-video-btn" data-video-id="${video.id}" data-playlist-id="${playlistId}">حذف</button>` : ''}
+                                </div>
+                            </div>
+                        `).join('');
+                    }
+
+                    openModalUnique('videosModal'); // فتح الـ Modal الخاص بالفيديوهات
+                } catch (error) {
+                    console.error(error.message);
+                }
+            });
+        });
+    } catch (error) {
+        console.error(error.message);
+    }
+});
+
+
+
+// جلب قوائم التشغيل الخاصة بالمستخدم الحالي وعرضها
+document.getElementById('showUserPlaylistsBtn').addEventListener('click', async () => {
+    try {
+        const response = await fetch('/get_user_playlists');
+        if (!response.ok) {
+            throw new Error(`فشل تحميل قوائم التشغيل الخاصة بالمستخدم: ${response.statusText}`);
+        }
+
+        const userPlaylists = await response.json();
+        const playlistsList = document.getElementById('playlistsList');
+        if (userPlaylists.length === 0) {
+            playlistsList.innerHTML = '<li>لا توجد قوائم تشغيل خاصة بك</li>';
+        } else {
+            playlistsList.innerHTML = userPlaylists.map(playlist => `
+                <li class="playlist-item-unique" data-playlist-id="${playlist.id}">
+                    ${playlist.name}
+                </li>
+            `).join('');
+        }
+
+        openModalUnique('playlistsModal'); // فتح Modal قوائم التشغيل
+
+        // إضافة حدث النقر على عنصر قائمة التشغيل
+        document.querySelectorAll('.playlist-item-unique').forEach(item => {
+            item.addEventListener('click', async () => {
+                const playlistId = item.getAttribute('data-playlist-id');
+                try {
+                    const response = await fetch(`/get_playlist_videos/${playlistId}`);
+                    if (!response.ok) {
+                        throw new Error(`فشل تحميل الفيديوهات لقائمة التشغيل: ${response.statusText}`);
+                    }
+
+                    const videos = await response.json();
+                    const videosList = document.getElementById('videosList');
+                    if (videos.length === 0) {
+                        const videoPlayer2 = document.getElementById("videoPlayer2").style.display = "none"
+                        const videoDetails = document.getElementById("videoDetails")
+                        videoDetails.innerHTML = '<div>No videos available</div>';
+                    } else {
+                        let videoPlayer2 = document.getElementById('videoPlayer2')
+                        videoPlayer2.style.display = "flex"
+                        videosList.innerHTML = videos.map(video => `
+                            <div class="video-item-unique" data-video-id="${video.id}">
+                                <img src="${video.thumbnail_path}" alt="${video.title}">
+                                <div>
+                                    <h6>${video.title}</h6>
+                                    <small>${video.uploader_name}</small>
+                                    <!-- زر حذف الفيديو يظهر فقط إذا كان المستخدم هو المالك -->
+                                    ${video.is_owner ? `<button class="delete-video-btn" data-video-id="${video.id}" data-playlist-id="${playlistId}">حذف</button>` : ''}
+                                </div>
+                            </div>
+                        `).join('');
+                    }
+
+                    openModalUnique('videosModal'); // فتح الـ Modal الخاص بالفيديوهات
+          
+
+                 // إضافة حدث النقر على زر حذف الفيديو
+                 document.querySelectorAll('.delete-video-btn').forEach(deleteBtn => {
+    deleteBtn.addEventListener('click', async (e) => {
+        const videoId = deleteBtn.getAttribute('data-video-id');
+        const playlistId = deleteBtn.getAttribute('data-playlist-id');
+
+        try {
+            // إرسال طلب الحذف إلى الخادم
+            const response = await fetch('/delete_video_from_playlist', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    video_id: videoId,
+                    playlist_id: playlistId
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error("فشل حذف الفيديو من قائمة التشغيل");
+            }
+
+            // تحديد قائمة الفيديوهات والفهرس الحالي
+            const videoItem = deleteBtn.closest('.video-item-unique');
+            const videos = Array.from(document.querySelectorAll('.video-item-unique')); // تحويل القائمة إلى مصفوفة
+            const currentVideoIndex = videos.findIndex(item => item.classList.contains('active')); // العثور على الفهرس الحالي
+
+            // حذف الفيديو من الواجهة
+            videoItem.remove();
+
+            showMessage("تم الحذف الفديو من قائمة التشغيل", true); // عرض رسالة النجاح
+
+            // تحديث قائمة الفيديوهات المتبقية
+            const remainingVideos = document.querySelectorAll('.video-item-unique');
+            const videoPlayer2 = document.getElementById('videoPlayer2');
+
+            if (remainingVideos.length === 0) {
+                // إذا لم يتبقَ أي فيديوهات
+                videoPlayer2.src = ''; // إيقاف الفيديو
+                videoPlayer2.style.display = "none"
+                let videoDetails = document.getElementById("videoDetails").innerHTML = "<div>No videos available</div>"
+            } else {
+                // إذا كانت هناك فيديوهات
+                if (currentVideoIndex > 0) {
+                    // تشغيل الفيديو السابق إذا كان موجودًا
+                    const previousVideoItem = videos[currentVideoIndex - 1];
+                    previousVideoItem.click();
+                } else if (currentVideoIndex === 0 && videos.length > 1) {
+                    // إذا كان الفيديو الأول قد تم حذفه وكان هناك فيديوهات أخرى
+                    const nextVideoItem = videos[1];
+                    nextVideoItem.click();
+                } else {
+                    // إذا لم يكن هناك فيديو نشط، تشغيل أول فيديو متبقٍ
+                    const firstRemainingVideo = remainingVideos[0];
+                    firstRemainingVideo.click();
+                }
+            }
+        } catch (error) {
+            console.error(error);
+            alert("حدث خطأ أثناء حذف الفيديو");
+        }
+    });
+});
+
+
+
+                    // تشغيل أول فيديو بعد تحميل الفيديوهات مباشرة
+                    setTimeout(() => {
+                        const firstVideoItem = document.querySelector('.video-item-unique');
+                        if (firstVideoItem) {
+                            firstVideoItem.click();  // نقوم بمحاكاة الضغط على أول فيديو
+                        }
+                    }, 100);  // تأخير بسيط لانتظار تحميل المحتويات
+
+                    let currentVideoIndex = 0;  // متغير لتتبع الفيديو الحالي
+
+                    // إضافة حدث النقر على عنصر الفيديو
+                    document.querySelectorAll('.video-item-unique').forEach((videoItem, index) => {
+                        videoItem.addEventListener('click', async () => {
+                            // إزالة الفئة active من جميع العناصر
+                            document.querySelectorAll('.video-item-unique').forEach(item => {
+                                item.classList.remove('active');
+                            });
+
+                            // إضافة الفئة active للفيديو الذي يتم النقر عليه
+                            videoItem.classList.add('active');
+
+                            const videoId = videoItem.getAttribute('data-video-id');
+                            try {
+                                const response = await fetch(`/get_video/${videoId}`);
+                                if (!response.ok) {
+                                    throw new Error(`فشل تحميل الفيديو: ${response.statusText}`);
+                                }
+
+                                const video = await response.json();
+                                const videoPlayer2 = document.getElementById('videoPlayer2');
+                                videoPlayer2.src = video.video_path;
+                                videoPlayer2.play();
+
+                                const videoDetails = document.getElementById('videoDetails');
+                                videoDetails.innerHTML = `
+                                    <h4>${video.title}</h4>
+                                    <p>Uploaded by: ${video.uploader_name}</p>
+                                    <p>Uploaded on: ${video.upload_time}</p>
+                                    <img src="static/${video.uploader_image}" alt="${video.uploader_name}" width="50">
+                                `;
+
+                                currentVideoIndex = index;  // تحديث الفهرس عند النقر على الفيديو
+                            } catch (error) {
+                                console.error("Error fetching video:", error);
+                                alert("حدث خطأ أثناء تحميل الفيديو.");
+                            }
+                        });
+                    });
+
+                    // إضافة حدث عند انتهاء الفيديو لتشغيل الفيديو التالي
+                    const videoPlayer2 = document.getElementById('videoPlayer2');
+                    videoPlayer2.addEventListener('ended', () => {
+                        if (currentVideoIndex < videos.length - 1) {
+                            const nextVideoItem = document.querySelectorAll('.video-item-unique')[currentVideoIndex + 1];
+                            nextVideoItem.click();  // نقوم بمحاكاة الضغط على الفيديو التالي
+                        }
+                    });
+
+                } catch (error) {
+                    console.error("Error fetching playlist videos:", error);
+                    alert("حدث خطأ أثناء تحميل الفيديوهات لقائمة التشغيل.");
+                }
+            });
+        });
+
+    } catch (error) {
+        console.error("Error fetching playlists:", error);
+        alert("حدث خطأ أثناء تحميل قوائم التشغيل.");
+    }
+});
+
+
+
+
+
+
+
+    const uploadForm = document.getElementById('upload-form');
+
+ 
+        uploadForm.addEventListener('submit', function (e) {
+            // e.preventDefault();  // منع الإرسال التلقائي للنموذج
+            let animation = document.querySelector(".main-anmi-loading").style.display = "grid"
+        })
+           
+
+
+    </script>
+  </body>
+</html>
