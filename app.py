@@ -4,7 +4,6 @@ from datetime import datetime
 import json
 import os
 import re
-import cv2
 import numpy as np
 from flask import Flask, render_template, request, jsonify, flash, redirect, url_for, abort, Response, stream_with_context
 from flask_sqlalchemy import SQLAlchemy
