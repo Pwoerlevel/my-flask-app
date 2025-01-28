@@ -23,7 +23,6 @@ MarkupSafe==3.0.2
 multidict==6.1.0
 nest-asyncio==1.6.0
 numpy==2.2.2
-opencv-python==4.11.0.86
 pillow==11.1.0
 propcache==0.2.1
 pycryptodome==3.21.0
